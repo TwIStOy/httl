@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
+include(CheckCXXCompilerFlag)
+
 # Fallback for using newer policies on CMake <3.12.
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
@@ -14,7 +16,10 @@ if (NOT DEFINED HTTL_MASTER_PROJECT)
   endif()
 endif()
 
-project(httl LANGUAGE CXX)
+project(httl LANGUAGES CXX)
+
+SET(CMAKE_CXX_STANDARD 17)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # add custom cmake scripts
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -62,12 +67,13 @@ if (MSVC)
   set(WERROR_FLAG /WX)
 endif ()
 
+set(HTTL_SOURCES src/ht/container/impl/avl_tree_base.cpp)
 add_library(httl ${HTTL_SOURCES} ${HTTL_HEADERS})
 add_library(httl::httl ALIAS httl)
 
-target_compile_options(fmt PRIVATE ${WERROR_FLAG})
-target_compile_options(fmt PRIVATE ${PEDANTIC_COMPILE_FLAGS})
-target_include_directories(fmt PUBLIC
+target_compile_options(httl PRIVATE ${WERROR_FLAG})
+target_compile_options(httl PRIVATE ${PEDANTIC_COMPILE_FLAGS})
+target_include_directories(httl PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 

@@ -6,10 +6,11 @@ target_include_directories(test-main PUBLIC
 
 function(add_httl_test name)
   set(sources ${name}.cpp)
-  add_executable(${name} ${})
-  target_link_libraries(test-main httl)
+  add_executable(${name} ${sources})
+  target_link_libraries(${name} test-main httl)
   add_test(NAME ${name} COMMAND ${name})
 endfunction()
 
 add_httl_test(avl-tree-test)
+add_httl_test(stealer-test)
 

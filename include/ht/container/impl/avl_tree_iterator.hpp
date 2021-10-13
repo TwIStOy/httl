@@ -44,7 +44,7 @@ struct _AVL_Tree_Iterator {
   }
 
   explicit _AVL_Tree_Iterator(__avl_tree_node *_x) noexcept
-      : _node(_x->__data) {
+      : _node(reinterpret_cast<_node_type>(_x->__data)) {
   }
 
   reference operator*() const noexcept {
@@ -119,7 +119,7 @@ struct _AVL_Tree_Const_Iterator {
   }
 
   explicit _AVL_Tree_Const_Iterator(__avl_tree_node *_x) noexcept
-      : _node(_x->__data) {
+      : _node(reinterpret_cast<_node_type>(_x->__data)) {
   }
 
   _AVL_Tree_Const_Iterator(const iterator &it) noexcept : _node{it._node} {

@@ -260,7 +260,7 @@ void __avl_tree_base::erase_node(__avl_tree_node *node) {
     } else {
       child = node->__left;
     }
-    __avl_tree_node *parent = node->__parent;
+    parent = node->__parent;
     replace_child(node, child, parent);
     if (child) {
       child->__parent = parent;

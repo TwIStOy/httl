@@ -5,19 +5,20 @@
 //
 // For the license information refer to version.h.
 
-#include "ht/container/avl_tree.hpp"
-#include "catch.hpp"
-
+#include <iostream>
 #include <map>
+#include <string>
 
-/*
- * TEST_CASE( "Factorials are computed", "[factorial]" ) {
- *     REQUIRE( Factorial(1) == 1 );
- *     REQUIRE( Factorial(2) == 2 );
- *     REQUIRE( Factorial(3) == 6 );
- *     REQUIRE( Factorial(10) == 3628800 );
- * }
- *
- */
+#include "catch.hpp"
+#include "ht/container/avl_tree.hpp"
 
+TEST_CASE("find after insert", "[avl-tree][container]") {
+  ht::AVLTree<std::string, int> tree;
+  tree.insert(std::make_pair("foo", 1));
+  tree.insert(std::make_pair("bar", 1));
+  tree.insert(std::make_pair("foobar", 1));
 
+  REQUIRE(tree.size() == 3);
+
+  std::cout << ht::DebugStringify(tree) << std::endl;
+}

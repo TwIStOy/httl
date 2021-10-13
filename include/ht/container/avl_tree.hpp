@@ -8,6 +8,7 @@
 #pragma once  // NOLINT(build/header_guard)
 
 #include <cassert>
+#include <functional>
 
 #include "ht/container/impl/avl_tree_base.hpp"
 #include "ht/container/impl/avl_tree_iterator.hpp"
@@ -39,7 +40,11 @@ class AVLTree : public IDebugDisplay {
 
   using node_type = __avl_impl::_AVL_Tree_Node<value_type>;
 
-  AVLTree();
+  AVLTree() = default;
+
+  ~AVLTree() {
+    clear();
+  }
 
   template<typename ForwardIterator,
            typename = std::enable_if_t<std::is_same_v<
@@ -55,10 +60,12 @@ class AVLTree : public IDebugDisplay {
     __avl_impl::__avl_tree_node *parent = nullptr;
     while (*position) {
       parent = *position;
-      if (data < reinterpret_cast<node_type>(parent->__data)->__value->first) {
+      if (data.first <
+          reinterpret_cast<node_type *>(parent->__data)->_value->first) {
         position = &parent->__left;
       }
-      if (reinterpret_cast<node_type>(parent->__data)->__value->first < data) {
+      if (reinterpret_cast<node_type *>(parent->__data)->_value->first <
+          data.first) {
         position = &parent->__right;
       }
       return {iterator(parent), false};
@@ -132,17 +139,26 @@ class AVLTree : public IDebugDisplay {
     __avl_impl::__avl_tree_node *node = find_node(key);
     if (node) {
       __base.erase_node(node);
-      delete reinterpret_cast<node_type>(node->__data);
+      delete reinterpret_cast<node_type *>(node->__data);
       delete node;
       __base.__count--;
     }
     return 0;
   }
 
+  void DebuggingStringify(std::ostream &oss) const {
+    oss << "AVLTree " << size() << " nodes: [";
+    in_order_traval(__base.__root, [&oss](node_type *node) {
+      oss << "(" << node->_value->first << ", " << node->_value->second
+          << "), ";
+    });
+    oss << "]";
+  }
+
  private:
   void destroy_tree(__avl_impl::__avl_tree_node *node) {
     if (node) {
-      auto data = reinterpret_cast<node_type>(node->__data);
+      auto data = reinterpret_cast<node_type *>(node->__data);
       delete data;
 
       destroy_tree(node->__left);
@@ -154,16 +170,29 @@ class AVLTree : public IDebugDisplay {
   __avl_impl::__avl_tree_node *find_node(const key_t &key) {
     auto node = __base.__root;
     while (node) {
-      auto data = reinterpret_cast<node_type>(node->__data);
+      auto data = reinterpret_cast<node_type *>(node->__data);
       if (data->_value->first < key) {
         node = node->__left;
-      } else if (key < data->__value.first) {
+      } else if (key < data->_value.first) {
         node = node->__right;
       } else {
         return node;
       }
     }
     return nullptr;
+  }
+
+  void in_order_traval(__avl_impl::__avl_tree_node *root,
+                       const std::function<void(node_type *node)> &f) const {
+    if (root) {
+      if (root->__left) {
+        in_order_traval(root->__left, f);
+      }
+      f(reinterpret_cast<node_type *>(root->__data));
+      if (root->__right) {
+        in_order_traval(root->__right, f);
+      }
+    }
   }
 
  private:
