@@ -142,6 +142,7 @@ class AVLTree : public IDebugDisplay {
       delete reinterpret_cast<node_type *>(node->__data);
       delete node;
       __base.__count--;
+      return 1;
     }
     return 0;
   }

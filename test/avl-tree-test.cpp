@@ -51,4 +51,20 @@ TEST_CASE("find after insert", "[avl-tree][container]") {
   }
 }
 
+TEST_CASE("erase after insert", "[avl-tree][container]") {
+  ht::AVLTree<std::string, int> tree;
+  tree.insert(std::make_pair("foo", 1));
+  tree.insert(std::make_pair("bar", 2));
+  tree.insert(std::make_pair("foobar", 3));
 
+  REQUIRE(tree.size() == 3);
+
+  std::cout << ht::DebugStringify(tree) << std::endl;
+
+  {
+    auto cnt = tree.erase("foo");
+    REQUIRE(cnt == 1);
+  }
+
+  REQUIRE(tree.size() == 2);
+}
