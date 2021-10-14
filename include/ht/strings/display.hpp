@@ -43,7 +43,7 @@ struct IsHelperImpled<
     T, std::void_t<decltype(DisplayHelper<T>{}(std::declval<T>()))>>
     : std::true_type {};
 
-template<typename T>
+template<typename T, typename = void>
 struct DebugDisplayHelper {};
 
 template<typename T, typename = void>
@@ -53,6 +53,21 @@ template<typename T>
 struct IsDebugHelperImpled<
     T, std::void_t<decltype(DebugDisplayHelper<T>{}(std::declval<T>()))>>
     : std::true_type {};
+
+// common impls
+template<>
+struct DebugDisplayHelper<std::string> {
+  inline std::string operator()(const std::string &s) const {
+    return '"' + s + '"';
+  }
+};
+
+template<typename _Tp>
+struct DebugDisplayHelper<_Tp, std::enable_if_t<std::is_integral_v<_Tp>>> {
+  inline std::string operator()(const _Tp &s) const {
+    return std::to_string(s);
+  }
+};
 
 }  // namespace display_helper
 

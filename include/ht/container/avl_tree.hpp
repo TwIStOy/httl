@@ -63,12 +63,12 @@ class AVLTree : public IDebugDisplay {
       if (data.first <
           reinterpret_cast<node_type *>(parent->__data)->_value->first) {
         position = &parent->__left;
-      }
-      if (reinterpret_cast<node_type *>(parent->__data)->_value->first <
-          data.first) {
+      } else if (reinterpret_cast<node_type *>(parent->__data)->_value->first <
+                 data.first) {
         position = &parent->__right;
+      } else {
+        return {iterator(parent), false};
       }
-      return {iterator(parent), false};
     }
 
     *position      = new __avl_impl::__avl_tree_node(parent, 0, nullptr);
@@ -155,6 +155,18 @@ class AVLTree : public IDebugDisplay {
     oss << "]";
   }
 
+  iterator begin() {
+    if (__base.__root) {
+      return iterator(__base.__root->left_most_node());
+    }
+    return end();
+  }
+
+  iterator end() {
+    __avl_impl::__avl_tree_node *ptr = nullptr;
+    return iterator(ptr);
+  }
+
  private:
   void destroy_tree(__avl_impl::__avl_tree_node *node) {
     if (node) {
@@ -167,14 +179,14 @@ class AVLTree : public IDebugDisplay {
     }
   }
 
-  __avl_impl::__avl_tree_node *find_node(const key_t &key) {
+  __avl_impl::__avl_tree_node *find_node(const key_type &key) {
     auto node = __base.__root;
     while (node) {
       auto data = reinterpret_cast<node_type *>(node->__data);
       if (data->_value->first < key) {
-        node = node->__left;
-      } else if (key < data->_value.first) {
         node = node->__right;
+      } else if (key < data->_value->first) {
+        node = node->__left;
       } else {
         return node;
       }

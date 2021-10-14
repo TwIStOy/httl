@@ -10,6 +10,7 @@
 #include <iterator>
 
 #include "ht/container/impl/avl_tree_base.hpp"
+#include "ht/strings/display.hpp"
 
 namespace ht::__avl_impl {
 
@@ -44,7 +45,7 @@ struct _AVL_Tree_Iterator {
   }
 
   explicit _AVL_Tree_Iterator(__avl_tree_node *_x) noexcept
-      : _node(reinterpret_cast<_node_type>(_x->__data)) {
+      : _node(_x ? reinterpret_cast<_node_type>(_x->__data) : nullptr) {
   }
 
   reference operator*() const noexcept {
@@ -177,3 +178,25 @@ struct _AVL_Tree_Const_Iterator {
 };
 
 }  // namespace ht::__avl_impl
+
+namespace ht::display_helper {
+
+template<typename _Tp>
+struct DebugDisplayHelper<ht::__avl_impl::_AVL_Tree_Iterator<_Tp>> {
+  using value_t = ht::__avl_impl::_AVL_Tree_Iterator<_Tp>;
+  std::string operator()(const value_t &v) const {
+    if (v._node == nullptr) {
+      return "AVLTree-Iterator(null)";
+    } else {
+      std::ostringstream oss;
+      oss << "AVLTree-Iterator(key = ";
+      DebugStringify(oss, v._node->_value->first);
+      oss << ", value = ";
+      DebugStringify(oss, v._node->_value->second);
+      oss << ")";
+      return oss.str();
+    }
+  }
+};
+
+}  // namespace ht::display_helper
