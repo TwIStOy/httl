@@ -81,21 +81,41 @@ TEST_CASE("benchmark", "[avl-tree][container]") {
   }
 
   {
-    auto st = std::chrono::high_resolution_clock::now();
+    std::vector<int64_t> cost;
     for (auto i = 0u; i < 1000; ++i) {
+      auto st = std::chrono::high_resolution_clock::now();
       htmp.insert(std::make_pair(keys[i], 1));
+      auto ed = std::chrono::high_resolution_clock::now();
+      cost.push_back((ed - st).count());
     }
-    auto ed = std::chrono::high_resolution_clock::now();
-    std::cout << "ht map: " << (ed - st).count() << std::endl;
+    std::sort(std::begin(cost), std::end(cost));
+    auto min = cost.front();
+    auto max = cost.back();
+    auto p95 = cost[950];
+    auto p99 = cost[990];
+    std::cout << "htmap, min: " << min << ", "
+              << "max: " << max << ", "
+              << "p95: " << p95 << ", "
+              << "p99: " << p99 << std::endl;
   }
 
   {
-    auto st = std::chrono::high_resolution_clock::now();
+    std::vector<int64_t> cost;
     for (auto i = 0u; i < 1000; ++i) {
+      auto st = std::chrono::high_resolution_clock::now();
       stdmap.insert(std::make_pair(keys[i], 1));
+      auto ed = std::chrono::high_resolution_clock::now();
+      cost.push_back((ed - st).count());
     }
-    auto ed = std::chrono::high_resolution_clock::now();
-    std::cout << "std map: " << (ed - st).count() << std::endl;
+
+    std::sort(std::begin(cost), std::end(cost));
+    auto min = cost.front();
+    auto max = cost.back();
+    auto p95 = cost[950];
+    auto p99 = cost[990];
+    std::cout << "stdmap, min: " << min << ", "
+              << "max: " << max << ", "
+              << "p95: " << p95 << ", "
+              << "p99: " << p99 << std::endl;
   }
 }
-
