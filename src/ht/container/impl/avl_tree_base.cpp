@@ -155,7 +155,7 @@ __avl_tree_node *__avl_tree_base::fix_l(__avl_tree_node *node) {
   int h0     = __left_height(right);
   int h1     = __right_height(right);
   if (h0 > h1) {
-    right = node_rotate_left(right);
+    right = node_rotate_right(right);
     right->__right->update_height();
     right->update_height();
   }

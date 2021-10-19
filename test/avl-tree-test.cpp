@@ -68,3 +68,34 @@ TEST_CASE("erase after insert", "[avl-tree][container]") {
 
   REQUIRE(tree.size() == 2);
 }
+
+TEST_CASE("benchmark", "[avl-tree][container]") {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+
+  ht::AVLTree<uint32_t, uint32_t> htmp;
+  std::map<uint32_t, uint32_t> stdmap;
+  std::vector<uint32_t> keys(1000);
+  for (auto i = 0u; i < 1000; ++i) {
+    keys[i] = gen();
+  }
+
+  {
+    auto st = std::chrono::high_resolution_clock::now();
+    for (auto i = 0u; i < 1000; ++i) {
+      htmp.insert(std::make_pair(keys[i], 1));
+    }
+    auto ed = std::chrono::high_resolution_clock::now();
+    std::cout << "ht map: " << (ed - st).count() << std::endl;
+  }
+
+  {
+    auto st = std::chrono::high_resolution_clock::now();
+    for (auto i = 0u; i < 1000; ++i) {
+      stdmap.insert(std::make_pair(keys[i], 1));
+    }
+    auto ed = std::chrono::high_resolution_clock::now();
+    std::cout << "std map: " << (ed - st).count() << std::endl;
+  }
+}
+
