@@ -16,13 +16,10 @@ namespace ht::__avl_impl {
 
 template<typename _Tp>
 struct _AVL_Tree_Node {
-  __avl_tree_node *_base_node;
-  _Tp *_value;
+  __avl_tree_node _base_node;
+  _Tp _value;
 
-  ~_AVL_Tree_Node() {
-    if (_value) {
-      delete _value;
-    }
+  explicit _AVL_Tree_Node(_Tp &&value) : _value(std::move(value)) {
   }
 };
 
@@ -45,21 +42,21 @@ struct _AVL_Tree_Iterator {
   }
 
   explicit _AVL_Tree_Iterator(__avl_tree_node *_x) noexcept
-      : _node(_x ? reinterpret_cast<_node_type>(_x->__data) : nullptr) {
+      : _node(_x ? reinterpret_cast<_node_type>(_x) : nullptr) {
   }
 
   reference operator*() const noexcept {
-    return *_node->_value;
-  }
-
-  pointer operator->() const noexcept {
     return _node->_value;
   }
 
+  pointer operator->() const noexcept {
+    return &_node->_value;
+  }
+
   _Self &operator++() noexcept {
-    auto next = _node->_base_node->next_node();
+    auto next = _node->_base_node.next_node();
     if (next) {
-      _node = reinterpret_cast<_node_type>(next->__data);
+      _node = reinterpret_cast<_node_type>(next);
     } else {
       _node = nullptr;
     }
@@ -73,9 +70,9 @@ struct _AVL_Tree_Iterator {
   }
 
   _Self &operator--() noexcept {
-    auto next = _node->_base_node->previous_node();
+    auto next = _node->_base_node.previous_node();
     if (next) {
-      _node = reinterpret_cast<_node_type>(next->__data);
+      _node = reinterpret_cast<_node_type>(next);
     } else {
       _node = nullptr;
     }
@@ -120,24 +117,24 @@ struct _AVL_Tree_Const_Iterator {
   }
 
   explicit _AVL_Tree_Const_Iterator(__avl_tree_node *_x) noexcept
-      : _node(reinterpret_cast<_node_type>(_x->__data)) {
+      : _node(reinterpret_cast<_node_type>(_x)) {
   }
 
   _AVL_Tree_Const_Iterator(const iterator &it) noexcept : _node{it._node} {
   }
 
   reference operator*() const noexcept {
-    return *_node->_value;
-  }
-
-  pointer operator->() const noexcept {
     return _node->_value;
   }
 
+  pointer operator->() const noexcept {
+    return &_node->_value;
+  }
+
   _Self &operator++() noexcept {
-    auto next = _node->_base_node->next_node();
+    auto next = _node->_base_node.next_node();
     if (next) {
-      _node = reinterpret_cast<_node_type>(next->__data);
+      _node = reinterpret_cast<_node_type>(next);
     } else {
       _node = nullptr;
     }
@@ -151,9 +148,9 @@ struct _AVL_Tree_Const_Iterator {
   }
 
   _Self &operator--() noexcept {
-    auto next = _node->_base_node->previous_node();
+    auto next = _node->_base_node.previous_node();
     if (next) {
-      _node = reinterpret_cast<_node_type>(next->__data);
+      _node = reinterpret_cast<_node_type>(next);
     } else {
       _node = nullptr;
     }
@@ -190,9 +187,9 @@ struct DebugDisplayHelper<ht::__avl_impl::_AVL_Tree_Iterator<_Tp>> {
     } else {
       std::ostringstream oss;
       oss << "AVLTree-Iterator(key = ";
-      DebugStringify(oss, v._node->_value->first);
+      DebugStringify(oss, v._node->_value.first);
       oss << ", value = ";
-      DebugStringify(oss, v._node->_value->second);
+      DebugStringify(oss, v._node->_value.second);
       oss << ")";
       return oss.str();
     }

@@ -9,33 +9,16 @@
 
 #include <algorithm>
 
+#include "ht/macro/cpp_feature.h"
+
 namespace ht::__avl_impl {
 
-static inline int __left_height(__avl_tree_node *node) {
+static ALWAYS_INLINE int __left_height(__avl_tree_node *node) {
   return node->__left ? node->__left->__height : 0;
 }
 
-static inline int __right_height(__avl_tree_node *node) {
+static ALWAYS_INLINE int __right_height(__avl_tree_node *node) {
   return node->__right ? node->__right->__height : 0;
-}
-
-__avl_tree_node::__avl_tree_node(__avl_tree_node *parent, int height,
-                                 void *data)
-    : __parent(parent), __height(height), __data(data) {
-}
-
-__avl_tree_node *__avl_tree_node::left_most_node() {
-  if (__left == nullptr) {
-    return this;
-  }
-  return __left->left_most_node();
-}
-
-__avl_tree_node *__avl_tree_node::right_most_node() {
-  if (__right == nullptr) {
-    return this;
-  }
-  return __right->right_most_node();
 }
 
 __avl_tree_node *__avl_tree_node::next_node() {
@@ -44,9 +27,11 @@ __avl_tree_node *__avl_tree_node::next_node() {
   }
 
   auto node = this;
+  auto last = node;
+
   while (true) {
-    auto last = node;
-    node      = node->__parent;
+    last = node;
+    node = node->__parent;
     if (node == nullptr)
       break;
     if (node->__left == last)
@@ -62,9 +47,11 @@ __avl_tree_node *__avl_tree_node::previous_node() {
   }
 
   auto node = this;
+  auto last = node;
+
   while (true) {
-    auto last = node;
-    node      = node->__parent;
+    last = node;
+    node = node->__parent;
     if (node == nullptr)
       break;
     if (node->__right == last)
@@ -72,13 +59,6 @@ __avl_tree_node *__avl_tree_node::previous_node() {
   }
 
   return node;
-}
-
-int __avl_tree_node::update_height() {
-  int h_left  = __left ? __left->__height : 0;
-  int h_right = __right ? __right->__height : 0;
-  __height    = std::max(h_left, h_right) + 1;
-  return __height;
 }
 
 __avl_tree_node *__avl_tree_base::first_node() {
@@ -91,21 +71,6 @@ __avl_tree_node *__avl_tree_base::first_node() {
     node = node->__left;
   }
   return node;
-}
-
-void __avl_tree_base::replace_child(__avl_tree_node *old_node,
-                                    __avl_tree_node *new_node,
-                                    __avl_tree_node *parent) {
-  if (parent) {
-    if (parent->__left == old_node) {
-      parent->__left = new_node;
-    }
-    if (parent->__right == old_node) {
-      parent->__right = new_node;
-    }
-  } else {
-    __root = new_node;
-  }
 }
 
 __avl_tree_node *__avl_tree_base::node_rotate_left(__avl_tree_node *node) {
@@ -121,7 +86,6 @@ __avl_tree_node *__avl_tree_base::node_rotate_left(__avl_tree_node *node) {
   node->__parent = right;
   return right;
 }
-
 __avl_tree_node *__avl_tree_base::node_rotate_right(__avl_tree_node *node) {
   auto left    = node->__left;
   auto parent  = node->__parent;
@@ -134,6 +98,36 @@ __avl_tree_node *__avl_tree_base::node_rotate_right(__avl_tree_node *node) {
   replace_child(node, left, parent);
   node->__parent = left;
   return left;
+}
+
+static ALWAYS_INLINE __avl_tree_node *node_rotate_right_right(
+    __avl_tree_node *node) {
+  auto left    = node->__left;
+  auto parent  = node->__parent;
+  node->__left = left->__right;
+  if (left->__right) {
+    left->__right->__parent = node;
+  }
+  left->__right   = node;
+  left->__parent  = parent;
+  parent->__right = left;
+  node->__parent  = left;
+  return left;
+}
+
+static ALWAYS_INLINE __avl_tree_node *node_rotate_left_left(
+    __avl_tree_node *node) {
+  auto right    = node->__right;
+  auto parent   = node->__parent;
+  node->__right = right->__left;
+  if (right->__left) {
+    right->__left->__parent = node;
+  }
+  right->__left   = node;
+  right->__parent = parent;
+  parent->__left  = right;
+  node->__parent  = right;
+  return right;
 }
 
 void __avl_tree_base::replace_node(__avl_tree_node *old_node,
@@ -155,7 +149,7 @@ __avl_tree_node *__avl_tree_base::fix_l(__avl_tree_node *node) {
   int h0     = __left_height(right);
   int h1     = __right_height(right);
   if (h0 > h1) {
-    right = node_rotate_right(right);
+    right = node_rotate_right_right(right);
     right->__right->update_height();
     right->update_height();
   }
@@ -170,7 +164,7 @@ __avl_tree_node *__avl_tree_base::fix_r(__avl_tree_node *node) {
   int h0    = __left_height(left);
   int h1    = __right_height(left);
   if (h0 < h1) {
-    left = node_rotate_left(left);
+    left = node_rotate_left_left(left);
     left->__left->update_height();
     left->update_height();
   }
@@ -181,11 +175,13 @@ __avl_tree_node *__avl_tree_base::fix_r(__avl_tree_node *node) {
 }
 
 void __avl_tree_base::rebalance(__avl_tree_node *node) {
+  int h0, h1, diff, height;
   while (node) {
-    int h0     = __left_height(node);
-    int h1     = __right_height(node);
-    int diff   = h0 - h1;
-    int height = std::max(h0, h1) + 1;
+    h0 = __left_height(node);
+    h1 = __right_height(node);
+
+    diff   = h0 - h1;
+    height = std::max(h0, h1) + 1;
     if (node->__height != height) {
       node->__height = height;
     } else if (diff >= -1 && diff <= 1) {
@@ -201,12 +197,14 @@ void __avl_tree_base::rebalance(__avl_tree_node *node) {
 }
 
 void __avl_tree_base::rebalance_new_node(__avl_tree_node *node) {
+  int h0, h1, diff, height;
+
   node->__height = 1;
   for (node = node->__parent; node; node = node->__parent) {
-    int h0     = __left_height(node);
-    int h1     = __right_height(node);
-    int diff   = h0 - h1;
-    int height = std::max(h0, h1) + 1;
+    h0     = __left_height(node);
+    h1     = __right_height(node);
+    diff   = h0 - h1;
+    height = std::max(h0, h1) + 1;
     if (node->__height == height)
       break;
     node->__height = height;
@@ -234,10 +232,10 @@ void __avl_tree_base::erase_node(__avl_tree_node *node) {
   __avl_tree_node *parent = nullptr;
 
   if (node->__left && node->__right) {
-    auto old = node;
-    node = node->__right->left_most_node();
-    auto child  = node->__right;
-    parent = node->__parent;
+    auto old   = node;
+    node       = node->__right->left_most_node();
+    auto child = node->__right;
+    parent     = node->__parent;
     if (child) {
       child->__parent = parent;
     }

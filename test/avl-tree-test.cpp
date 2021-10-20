@@ -69,20 +69,30 @@ TEST_CASE("erase after insert", "[avl-tree][container]") {
   REQUIRE(tree.size() == 2);
 }
 
-TEST_CASE("benchmark", "[avl-tree][container]") {
+TEST_CASE("benchmark", "[avl-tree][container][benchmark]") {
   std::random_device rd;
   std::mt19937 gen(rd());
 
+  uint32_t keys_count = 1000000;
+
   ht::AVLTree<uint32_t, uint32_t> htmp;
   std::map<uint32_t, uint32_t> stdmap;
-  std::vector<uint32_t> keys(1000);
-  for (auto i = 0u; i < 1000; ++i) {
-    keys[i] = gen();
+  std::vector<uint32_t> keys(keys_count);
+  for (auto i = 0u; i < keys_count; ++i) {
+    keys[i] = i;
   }
+
+  auto get_sum = [](const auto &x) {
+    int64_t v = 0;
+    for (const auto &vv : x) {
+      v += vv;
+    }
+    return v;
+  };
 
   {
     std::vector<int64_t> cost;
-    for (auto i = 0u; i < 1000; ++i) {
+    for (auto i = 0u; i < keys_count; ++i) {
       auto st = std::chrono::high_resolution_clock::now();
       htmp.insert(std::make_pair(keys[i], 1));
       auto ed = std::chrono::high_resolution_clock::now();
@@ -91,17 +101,18 @@ TEST_CASE("benchmark", "[avl-tree][container]") {
     std::sort(std::begin(cost), std::end(cost));
     auto min = cost.front();
     auto max = cost.back();
-    auto p95 = cost[950];
-    auto p99 = cost[990];
+    auto p95 = cost[keys_count * 0.95];
+    auto p99 = cost[keys_count * 0.99];
     std::cout << "htmap, min: " << min << ", "
               << "max: " << max << ", "
               << "p95: " << p95 << ", "
-              << "p99: " << p99 << std::endl;
+              << "p99: " << p99 << ", "
+              << "avg: " << (get_sum(cost) / keys_count) << std::endl;
   }
 
   {
     std::vector<int64_t> cost;
-    for (auto i = 0u; i < 1000; ++i) {
+    for (auto i = 0u; i < keys_count; ++i) {
       auto st = std::chrono::high_resolution_clock::now();
       stdmap.insert(std::make_pair(keys[i], 1));
       auto ed = std::chrono::high_resolution_clock::now();
@@ -111,11 +122,12 @@ TEST_CASE("benchmark", "[avl-tree][container]") {
     std::sort(std::begin(cost), std::end(cost));
     auto min = cost.front();
     auto max = cost.back();
-    auto p95 = cost[950];
-    auto p99 = cost[990];
+    auto p95 = cost[keys_count * 0.95];
+    auto p99 = cost[keys_count * 0.99];
     std::cout << "stdmap, min: " << min << ", "
               << "max: " << max << ", "
               << "p95: " << p95 << ", "
-              << "p99: " << p99 << std::endl;
+              << "p99: " << p99 << ", "
+              << "avg: " << (get_sum(cost) / keys_count) << std::endl;
   }
 }

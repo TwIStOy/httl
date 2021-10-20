@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <functional>
+#include <iostream>
 
 #include "ht/container/impl/avl_tree_base.hpp"
 #include "ht/container/impl/avl_tree_iterator.hpp"
@@ -56,30 +57,39 @@ class AVLTree : public IDebugDisplay {
   }
 
   std::pair<iterator, bool> insert(value_type &&data) {
-    auto position                       = &__base.__root;
+    auto position = &__base.__root;
+
     __avl_impl::__avl_tree_node *parent = nullptr;
+
     while (*position) {
-      parent = *position;
-      if (data.first <
-          reinterpret_cast<node_type *>(parent->__data)->_value->first) {
+      parent    = *position;
+      auto &now = reinterpret_cast<node_type *>(parent)->_value.first;
+
+      if (data.first < now) {
         position = &parent->__left;
-      } else if (reinterpret_cast<node_type *>(parent->__data)->_value->first <
-                 data.first) {
+      } else if (now < data.first) {
         position = &parent->__right;
       } else {
         return {iterator(parent), false};
       }
     }
 
-    *position      = new __avl_impl::__avl_tree_node(parent, 0, nullptr);
-    auto data_node = new node_type{*position, new value_type{std::move(data)}};
-    (*position)->__data = data_node;
+    auto data_node = new node_type(std::move(data));
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__left =
+        nullptr;
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__right =
+        nullptr;
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__parent =
+        parent;
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__height = 0;
+    *position = reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node);
 
     // rebalance tree
-    __base.rebalance_new_node(*position);
+    __base.rebalance_new_node(
+        reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node));
     __base.__count++;
 
-    assert(__base.check_node(__base.__root));
+    // assert(__base.check_node(__base.__root));
 
     return {iterator(*position), true};
   }
@@ -139,8 +149,7 @@ class AVLTree : public IDebugDisplay {
     __avl_impl::__avl_tree_node *node = find_node(key);
     if (node) {
       __base.erase_node(node);
-      delete reinterpret_cast<node_type *>(node->__data);
-      delete node;
+      delete reinterpret_cast<node_type *>(node);
       __base.__count--;
       return 1;
     }
@@ -150,8 +159,7 @@ class AVLTree : public IDebugDisplay {
   void DebuggingStringify(std::ostream &oss) const {
     oss << "AVLTree " << size() << " nodes: [";
     in_order_traval(__base.__root, [&oss](node_type *node) {
-      oss << "(" << node->_value->first << ", " << node->_value->second
-          << "), ";
+      oss << "(" << node->_value.first << ", " << node->_value.second << "), ";
     });
     oss << "]";
   }
@@ -171,22 +179,21 @@ class AVLTree : public IDebugDisplay {
  private:
   void destroy_tree(__avl_impl::__avl_tree_node *node) {
     if (node) {
-      auto data = reinterpret_cast<node_type *>(node->__data);
-      delete data;
-
       destroy_tree(node->__left);
       destroy_tree(node->__right);
-      delete node;
+
+      auto data = reinterpret_cast<node_type *>(node);
+      delete data;
     }
   }
 
   __avl_impl::__avl_tree_node *find_node(const key_type &key) {
     auto node = __base.__root;
     while (node) {
-      auto data = reinterpret_cast<node_type *>(node->__data);
-      if (data->_value->first < key) {
+      auto data = reinterpret_cast<node_type *>(node);
+      if (data->_value.first < key) {
         node = node->__right;
-      } else if (key < data->_value->first) {
+      } else if (key < data->_value.first) {
         node = node->__left;
       } else {
         return node;
@@ -198,13 +205,11 @@ class AVLTree : public IDebugDisplay {
   void in_order_traval(__avl_impl::__avl_tree_node *root,
                        const std::function<void(node_type *node)> &f) const {
     if (root) {
-      if (root->__left) {
+      if (root->__left)
         in_order_traval(root->__left, f);
-      }
-      f(reinterpret_cast<node_type *>(root->__data));
-      if (root->__right) {
+      f(reinterpret_cast<node_type *>(root));
+      if (root->__right)
         in_order_traval(root->__right, f);
-      }
     }
   }
 
