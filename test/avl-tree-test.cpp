@@ -10,6 +10,7 @@
 #include <string>
 
 #include "catch.hpp"
+#include "container_utils.hpp"
 #include "ht/container/avl_tree.hpp"
 #include "ht/macro/stealer.h"
 
@@ -141,4 +142,14 @@ TEST_CASE("benchmark", "[avl-tree][container][benchmark]") {
   benchmark_insert(1000000, true);
   benchmark_insert(100000000, false);
   benchmark_insert(100000000, true);
+}
+
+TEST_CASE("compile", "[avl-tree][container]") {
+  using container = ht::AVLTree<int, int>;
+
+  container value;
+
+  __ht_test::types<container> tmp{};
+  __ht_test::populate<container>{value};
+  __ht_test::reverse_members<container>{value};
 }

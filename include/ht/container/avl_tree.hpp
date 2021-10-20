@@ -41,6 +41,17 @@ class AVLTree : public IDebugDisplay {
 
   using node_type = __avl_impl::_AVL_Tree_Node<value_type>;
 
+  struct value_compare {
+    using result_type          = bool;
+    using first_argument_type  = value_type;
+    using second_argument_type = value_type;
+
+    result_type operator()(const value_type &lhs,
+                           const value_type &rhs) const noexcept {
+      return lhs.first < rhs.first;
+    }
+  };
+
   AVLTree() = default;
 
   ~AVLTree() {
@@ -100,7 +111,7 @@ class AVLTree : public IDebugDisplay {
 
   template<class P>
   std::pair<iterator, bool> insert(P &&value) {
-    return insert(value_type{std::move(value)});
+    return insert(value_type{std::forward<P>(value)});
   }
 
   template<class InputIt>
@@ -114,6 +125,28 @@ class AVLTree : public IDebugDisplay {
     for (auto &&v : ilist) {
       insert(std::move(v));
     }
+  }
+
+  template<class P>
+  iterator insert(const_iterator hint, const P &value) {
+    (void)hint;
+    return insert(value_type{value}).first;
+  }
+
+  iterator insert(const_iterator hint, const value_type &value) {
+    (void)hint;
+    return insert(value_type{value}).first;
+  }
+
+  template<class P>
+  iterator insert(const_iterator hint, P &&value) {
+    (void)hint;
+    return insert(value_type{std::forward<P>(value)}).first;
+  }
+
+  iterator insert(const_iterator hint, value_type &&value) {
+    (void)hint;
+    return insert(std::move(value)).first;
   }
 
   size_t size() const {
@@ -174,6 +207,43 @@ class AVLTree : public IDebugDisplay {
   iterator end() {
     __avl_impl::__avl_tree_node *ptr = nullptr;
     return iterator(ptr);
+  }
+
+  const_iterator cbegin() const {
+    if (__base.__root) {
+      return const_iterator(__base.__root->left_most_node());
+    }
+    return cend();
+  }
+
+  const_iterator cend() const {
+    __avl_impl::__avl_tree_node *ptr = nullptr;
+    return const_iterator(ptr);
+  }
+
+  reverse_iterator rbegin() {
+    if (__base.__root) {
+      return reverse_iterator{iterator{__base.__root->right_most_node()}};
+    }
+    return rend();
+  }
+
+  reverse_iterator rend() {
+    __avl_impl::__avl_tree_node *ptr = nullptr;
+    return reverse_iterator{iterator{ptr}};
+  }
+
+  const_reverse_iterator crbegin() const {
+    if (__base.__root) {
+      return const_reverse_iterator{
+          const_iterator{__base.__root->right_most_node()}};
+    }
+    return crend();
+  }
+
+  const_reverse_iterator crend() const {
+    __avl_impl::__avl_tree_node *ptr = nullptr;
+    return const_reverse_iterator{const_iterator{ptr}};
   }
 
  private:

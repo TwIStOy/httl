@@ -54,12 +54,7 @@ struct _AVL_Tree_Iterator {
   }
 
   _Self &operator++() noexcept {
-    auto next = _node->_base_node.next_node();
-    if (next) {
-      _node = reinterpret_cast<_node_type>(next);
-    } else {
-      _node = nullptr;
-    }
+    _node = reinterpret_cast<_node_type>(_node->_base_node.next_node());
     return *this;
   }
 
@@ -70,12 +65,7 @@ struct _AVL_Tree_Iterator {
   }
 
   _Self &operator--() noexcept {
-    auto next = _node->_base_node.previous_node();
-    if (next) {
-      _node = reinterpret_cast<_node_type>(next);
-    } else {
-      _node = nullptr;
-    }
+    _node = reinterpret_cast<_node_type>(_node->_base_node.previous_node());
     return *this;
   }
 
