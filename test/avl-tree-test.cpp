@@ -15,7 +15,7 @@
 #include "ht/macro/stealer.h"
 
 TEST_CASE("find after insert", "[avl-tree][container]") {
-  ht::AVLTree<std::string, int> tree;
+  ht::AVLTree<std::string, int> tree = {};
   tree.insert(std::make_pair("foo", 1));
   tree.insert(std::make_pair("bar", 2));
   tree.insert(std::make_pair("foobar", 3));
@@ -108,7 +108,7 @@ static void benchmark_insert(uint64_t count, bool random) {
     auto max = cost.back();
     auto p95 = cost[count * 0.95];
     auto p99 = cost[count * 0.99];
-    std::cout << "htmap, min: " << min << ", "
+    std::cout << "htmap " << htmp.size() << ", min: " << min << ", "
               << "max: " << max << ", "
               << "p95: " << p95 << ", "
               << "p99: " << p99 << ", "
@@ -129,7 +129,7 @@ static void benchmark_insert(uint64_t count, bool random) {
     auto max = cost.back();
     auto p95 = cost[count * 0.95];
     auto p99 = cost[count * 0.99];
-    std::cout << "stdmap, min: " << min << ", "
+    std::cout << "stdmap " << stdmap.size() << ", min: " << min << ", "
               << "max: " << max << ", "
               << "p95: " << p95 << ", "
               << "p99: " << p99 << ", "
@@ -140,8 +140,71 @@ static void benchmark_insert(uint64_t count, bool random) {
 TEST_CASE("benchmark", "[avl-tree][container][benchmark]") {
   benchmark_insert(1000000, false);
   benchmark_insert(1000000, true);
-  benchmark_insert(100000000, false);
-  benchmark_insert(100000000, true);
+  /*
+   * benchmark_insert(100000000, false);
+   * benchmark_insert(100000000, true);
+   */
+}
+
+template<typename T>
+struct alloc {
+  typedef T value_type;
+  typedef T *pointer;
+  typedef const T *const_pointer;
+  typedef T &reference;
+  typedef const T &const_reference;
+  typedef unsigned size_type;
+  typedef int difference_type;
+
+  template<typename U>
+  struct rebind {
+    typedef alloc<U> other;
+  };
+
+  alloc() {
+  }
+  template<typename U>
+  alloc(const alloc<U> &) {
+  }
+
+  pointer allocate(size_type n, const void * = 0) {
+    return std::allocator<T>().allocate(n);
+  }
+  void deallocate(pointer p, size_type n) {
+    std::allocator<T>().deallocate(p, n);
+  }
+
+  size_type max_size() const {
+    return -1;
+  }
+
+  void construct(pointer p, const T &t) {
+    new ((void *)p) T(t);
+  }
+  void destroy(pointer p) {
+    p->~T();
+  }
+
+  pointer address(reference x) const throw() {
+    return &x;
+  }
+  const_pointer address(const_reference x) const throw() {
+    return &x;
+  }
+};
+
+template<typename T, typename U>
+bool operator==(alloc<T>, alloc<U>) {
+  return true;
+}
+
+template<typename T, typename U>
+bool operator!=(alloc<T>, alloc<U>) {
+  return false;
+}
+TEST_CASE("c++03 allocator", "[avl-tree][container][stl]") {
+  ht::AVLTree<int, int, std::less<int>, alloc<std::pair<const int, int>>> m;
+  m[1];
 }
 
 TEST_CASE("compile", "[avl-tree][container]") {

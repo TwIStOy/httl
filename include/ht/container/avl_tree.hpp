@@ -74,7 +74,7 @@ class AVLTree : public IDebugDisplay {
 
     while (*position) {
       parent    = *position;
-      auto &now = reinterpret_cast<node_type *>(parent)->_value.first;
+      auto &now = reinterpret_cast<node_type *>(parent)->_value->first;
 
       if (data.first < now) {
         position = &parent->__left;
@@ -85,7 +85,9 @@ class AVLTree : public IDebugDisplay {
       }
     }
 
-    auto data_node = new node_type(std::move(data));
+    auto data_node    = new node_type;
+    data_node->_value = __allocator.allocate(1);
+    __allocator.construct(data_node->_value, std::move(data));
     reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__left =
         nullptr;
     reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__right =
@@ -149,6 +151,15 @@ class AVLTree : public IDebugDisplay {
     return insert(std::move(value)).first;
   }
 
+  mapped_type &operator[](const key_type &key) {
+    auto node = find_node(key);
+    if (node) {
+      return node->_value->second;
+    }
+  }
+
+  mapped_type &operator[](key_type &&key);
+
   size_t size() const {
     return __base.__count;
   }
@@ -165,10 +176,11 @@ class AVLTree : public IDebugDisplay {
   }
 
   void erase(iterator pos) {
-    if (pos.__node) {
-      __base.erase_node(pos.__node->__node);
-      delete pos.__node->__node;
-      delete pos.__node;
+    if (auto node = pos._node; node) {
+      __base.erase_node(reinterpret_cast<__avl_impl::__avl_tree_node *>(node));
+      __allocator.destroy(node->_value);
+      __allocator.deallocate(node->_value, 1);
+      delete node;
       __base.__count--;
     }
   }
@@ -182,7 +194,10 @@ class AVLTree : public IDebugDisplay {
     __avl_impl::__avl_tree_node *node = find_node(key);
     if (node) {
       __base.erase_node(node);
-      delete reinterpret_cast<node_type *>(node);
+      auto data_node = reinterpret_cast<node_type *>(node);
+      __allocator.destroy(data_node->_value);
+      __allocator.deallocate(data_node->_value, 1);
+      delete data_node;
       __base.__count--;
       return 1;
     }
@@ -192,7 +207,8 @@ class AVLTree : public IDebugDisplay {
   void DebuggingStringify(std::ostream &oss) const {
     oss << "AVLTree " << size() << " nodes: [";
     in_order_traval(__base.__root, [&oss](node_type *node) {
-      oss << "(" << node->_value.first << ", " << node->_value.second << "), ";
+      oss << "(" << node->_value->first << ", " << node->_value->second
+          << "), ";
     });
     oss << "]";
   }
@@ -261,9 +277,9 @@ class AVLTree : public IDebugDisplay {
     auto node = __base.__root;
     while (node) {
       auto data = reinterpret_cast<node_type *>(node);
-      if (data->_value.first < key) {
+      if (data->_value->first < key) {
         node = node->__right;
-      } else if (key < data->_value.first) {
+      } else if (key < data->_value->first) {
         node = node->__left;
       } else {
         return node;
@@ -285,6 +301,7 @@ class AVLTree : public IDebugDisplay {
 
  private:
   __avl_impl::__avl_tree_base __base;
+  allocator_type __allocator;
 };
 
 }  // namespace ht

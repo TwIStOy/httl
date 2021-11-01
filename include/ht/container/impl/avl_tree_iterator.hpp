@@ -17,10 +17,7 @@ namespace ht::__avl_impl {
 template<typename _Tp>
 struct _AVL_Tree_Node {
   __avl_tree_node _base_node;
-  _Tp _value;
-
-  explicit _AVL_Tree_Node(_Tp &&value) : _value(std::move(value)) {
-  }
+  _Tp *_value;
 };
 
 template<typename _Tp>
@@ -46,11 +43,11 @@ struct _AVL_Tree_Iterator {
   }
 
   reference operator*() const noexcept {
-    return _node->_value;
+    return *_node->_value;
   }
 
   pointer operator->() const noexcept {
-    return &_node->_value;
+    return _node->_value;
   }
 
   _Self &operator++() noexcept {
@@ -177,9 +174,9 @@ struct DebugDisplayHelper<ht::__avl_impl::_AVL_Tree_Iterator<_Tp>> {
     } else {
       std::ostringstream oss;
       oss << "AVLTree-Iterator(key = ";
-      DebugStringify(oss, v._node->_value.first);
+      DebugStringify(oss, v._node->_value->first);
       oss << ", value = ";
-      DebugStringify(oss, v._node->_value.second);
+      DebugStringify(oss, v._node->_value->second);
       oss << ")";
       return oss.str();
     }
