@@ -10,6 +10,7 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include <utility>
 
 #include "ht/container/impl/avl_tree_base.hpp"
 #include "ht/container/impl/avl_tree_iterator.hpp"
@@ -152,17 +153,80 @@ class AVLTree : public IDebugDisplay {
   }
 
   mapped_type &operator[](const key_type &key) {
-    auto node = find_node(key);
-    if (node) {
-      return node->_value->second;
+    auto position = &__base.__root;
+
+    __avl_impl::__avl_tree_node *parent = nullptr;
+
+    while (*position) {
+      parent    = *position;
+      auto &now = reinterpret_cast<node_type *>(parent)->_value->first;
+
+      if (key < now) {
+        position = &parent->__left;
+      } else if (now < key) {
+        position = &parent->__right;
+      } else {
+        return reinterpret_cast<node_type *>(parent)->_value->second;
+      }
     }
+
+    auto data_node    = new node_type;
+    data_node->_value = __allocator.allocate(1);
+    __allocator.construct(data_node->_value,
+                          std::move(std::make_pair(key, mapped_type{})));
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__left =
+        nullptr;
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__right =
+        nullptr;
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__parent =
+        parent;
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__height = 0;
+
+    // rebalance tree
+    __base.rebalance_new_node(
+        reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node));
+    __base.__count++;
+
+    return data_node->_value->second;
   }
 
   mapped_type &operator[](key_type &&key) {
-    auto node = find_node(std::move(key));
-    if (node) {
-      return node->_value->second;
+    auto position = &__base.__root;
+
+    __avl_impl::__avl_tree_node *parent = nullptr;
+
+    while (*position) {
+      parent    = *position;
+      auto &now = reinterpret_cast<node_type *>(parent)->_value->first;
+
+      if (key < now) {
+        position = &parent->__left;
+      } else if (now < key) {
+        position = &parent->__right;
+      } else {
+        return reinterpret_cast<node_type *>(parent)->_value->second;
+      }
     }
+
+    auto data_node    = new node_type;
+    data_node->_value = __allocator.allocate(1);
+    __allocator.construct(
+        data_node->_value,
+        std::move(std::make_pair(std::move(key), mapped_type{})));
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__left =
+        nullptr;
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__right =
+        nullptr;
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__parent =
+        parent;
+    reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__height = 0;
+
+    // rebalance tree
+    __base.rebalance_new_node(
+        reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node));
+    __base.__count++;
+
+    return data_node->_value->second;
   }
 
   size_t size() const {
