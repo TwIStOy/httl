@@ -158,7 +158,12 @@ class AVLTree : public IDebugDisplay {
     }
   }
 
-  mapped_type &operator[](key_type &&key);
+  mapped_type &operator[](key_type &&key) {
+    auto node = find_node(std::move(key));
+    if (node) {
+      return node->_value->second;
+    }
+  }
 
   size_t size() const {
     return __base.__count;
