@@ -1,13 +1,9 @@
-set(TEST_MAIN_SRC test-main.cpp)
-add_library(test-main STATIC ${TEST_MAIN_SRC})
-target_include_directories(test-main PUBLIC
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test>)
-
 function(add_httl_test name)
   set(sources ${name}.cpp)
   add_executable(${name} ${sources})
-  target_link_libraries(${name} test-main httl)
+  target_link_libraries(${name} httl Catch2::Catch2WithMain)
+  target_include_directories(${name} PRIVATE ${PROJECT_SOURCE_DIR}/test)
+  target_include_directories(${name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
   add_test(NAME ${name} COMMAND ${name})
 endfunction()
 

@@ -9,7 +9,7 @@
 #include <map>
 #include <string>
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include "container_utils.hpp"
 #include "ht/container/avl_tree.hpp"
 #include "ht/macro/stealer.h"

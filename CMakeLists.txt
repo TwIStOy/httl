@@ -77,6 +77,9 @@ target_include_directories(httl PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+add_subdirectory(third_party/fmt)
+target_link_libraries(httl fmt::fmt)
+
 # if (CMAKE_BUILD_TYPE EQUAL "Debug")
 #   include(CodeCoverage)
 #   append_coverage_compiler_flags()
@@ -86,6 +89,7 @@ option(HTTL_TEST "Generate test targets" ${HTTL_MASTER_PROJECT})
 
 if (HTTL_TEST)
   enable_testing()
+  add_subdirectory(third_party/Catch2)
   add_subdirectory(test)
 endif()
 

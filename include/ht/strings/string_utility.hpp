@@ -20,8 +20,8 @@ namespace ht {
 
 inline std::string_view RemoveLeadingSpaces(std::string_view str) {
   if (str.length() && std::isspace(str[0])) {
-    int first_nonwhitespace_index = 0;
-    for (int i = 0; i < str.length(); i++) {
+    uint32_t first_nonwhitespace_index = 0;
+    for (uint32_t i = 0; i < str.length(); i++) {
       if (!std::isspace(str[i])) {
         first_nonwhitespace_index = 1;
         break;

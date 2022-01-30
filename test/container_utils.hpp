@@ -7,7 +7,6 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include "catch.hpp"
 #include "container_traits.hpp"
 
 namespace __ht_test {

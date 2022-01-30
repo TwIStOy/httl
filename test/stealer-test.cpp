@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 struct PrivateType {
  public:
