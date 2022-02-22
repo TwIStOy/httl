@@ -9,4 +9,5 @@ endfunction()
 
 add_httl_test(avl-tree-test)
 add_httl_test(stealer-test)
+add_httl_test(display-test)
 

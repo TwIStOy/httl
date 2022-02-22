@@ -7,6 +7,8 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <fmt/format.h>
+
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -70,6 +72,15 @@ struct DebugDisplayHelper<_Tp, std::enable_if_t<std::is_integral_v<_Tp>>> {
 };
 
 }  // namespace display_helper
+
+template<typename T>
+constexpr bool is_stringifiable_v =
+    display_helper::IsHelperImpled<T>::value || std::is_base_of_v<IDisplay, T>;
+
+template<typename T>
+constexpr bool is_debug_stringifiable_v =
+    display_helper::IsDebugHelperImpled<T>::value ||
+    std::is_base_of_v<IDebugDisplay, T>;
 
 inline std::string IDisplay::Stringify() const {
   std::ostringstream oss;
@@ -136,5 +147,56 @@ std::string DebugStringify(const T &obj) {
 }
 
 }  // namespace ht
+
+namespace fmt {
+
+template<typename T>
+struct formatter<
+    T, char,
+    std::void_t<std::enable_if_t<ht::is_stringifiable_v<T> ||
+                                 ht::is_debug_stringifiable_v<T>>>> {
+  bool debug = false;
+
+  template<typename ParseContext>
+  constexpr auto parse(ParseContext &ctx) ->  // NOLINT(runtime/references)
+      decltype(ctx.begin()) {
+    auto it = ctx.begin();
+    auto ed = ctx.end();
+
+    if (it != ed && *it == '?') {
+      debug = true;
+      it++;
+    }
+
+    if (it != ed && *it != '}') {
+      throw format_error("invalid format");
+    }
+
+    return it;
+  }
+
+  template<typename FormatContext>
+  auto format(const T &v,
+              FormatContext &ctx)  // // NOLINT(runtime/references)
+      -> decltype(ctx.out()) {
+    if (debug) {
+      if constexpr (!ht::is_debug_stringifiable_v<T>) {
+        throw format_error(
+            "invalid format, expect debug stringifiable methods");
+      } else {
+        return format_to(ctx.out(), "{}", ht::DebugStringify(v));
+      }
+    } else {
+      if constexpr (!ht::is_stringifiable_v<T>) {
+        throw format_error(
+            "invalid format, expect debug stringifiable methods");
+      } else {
+        return format_to(ctx.out(), "{}", ht::Stringify(v));
+      }
+    }
+  }
+};
+
+}  // namespace fmt
 
 // vim: et sw=2 ts=2
