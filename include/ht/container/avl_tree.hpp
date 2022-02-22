@@ -10,6 +10,7 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <utility>
 
 #include "ht/container/impl/avl_tree_base.hpp"
@@ -88,7 +89,8 @@ class AVLTree : public IDebugDisplay {
 
     auto data_node    = new node_type;
     data_node->_value = __allocator.allocate(1);
-    __allocator.construct(data_node->_value, std::move(data));
+    std::allocator_traits<Allocator>::construct(__allocator, data_node->_value,
+                                                std::move(data));
     reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__left =
         nullptr;
     reinterpret_cast<__avl_impl::__avl_tree_node *>(data_node)->__right =
@@ -247,7 +249,7 @@ class AVLTree : public IDebugDisplay {
   void erase(iterator pos) {
     if (auto node = pos._node; node) {
       __base.erase_node(reinterpret_cast<__avl_impl::__avl_tree_node *>(node));
-      __allocator.destroy(node->_value);
+      std::allocator_traits<Allocator>::destroy(__allocator, node->_value);
       __allocator.deallocate(node->_value, 1);
       delete node;
       __base.__count--;
@@ -264,7 +266,7 @@ class AVLTree : public IDebugDisplay {
     if (node) {
       __base.erase_node(node);
       auto data_node = reinterpret_cast<node_type *>(node);
-      __allocator.destroy(data_node->_value);
+      std::allocator_traits<Allocator>::destroy(__allocator, data_node->_value);
       __allocator.deallocate(data_node->_value, 1);
       delete data_node;
       __base.__count--;

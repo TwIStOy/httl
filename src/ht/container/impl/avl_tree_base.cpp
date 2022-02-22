@@ -9,15 +9,15 @@
 
 #include <algorithm>
 
-#include "ht/macro/cpp_feature.h"
+#include "ht/core/cpp_feature.h"
 
 namespace ht::__avl_impl {
 
-static ALWAYS_INLINE int __left_height(__avl_tree_node *node) {
+HT_ALWAYS_INLINE static int __left_height(__avl_tree_node *node) {
   return node->__left ? node->__left->__height : 0;
 }
 
-static ALWAYS_INLINE int __right_height(__avl_tree_node *node) {
+HT_ALWAYS_INLINE static int __right_height(__avl_tree_node *node) {
   return node->__right ? node->__right->__height : 0;
 }
 
@@ -100,7 +100,7 @@ __avl_tree_node *__avl_tree_base::node_rotate_right(__avl_tree_node *node) {
   return left;
 }
 
-static ALWAYS_INLINE __avl_tree_node *node_rotate_right_right(
+HT_ALWAYS_INLINE static __avl_tree_node *node_rotate_right_right(
     __avl_tree_node *node) {
   auto left    = node->__left;
   auto parent  = node->__parent;
@@ -115,7 +115,7 @@ static ALWAYS_INLINE __avl_tree_node *node_rotate_right_right(
   return left;
 }
 
-static ALWAYS_INLINE __avl_tree_node *node_rotate_left_left(
+HT_ALWAYS_INLINE static __avl_tree_node *node_rotate_left_left(
     __avl_tree_node *node) {
   auto right    = node->__right;
   auto parent   = node->__parent;

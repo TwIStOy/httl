@@ -7,11 +7,12 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <fmt/format.h>
+
 #include <stdexcept>
 #include <variant>
 
-#include "fmt/format.h"
-#include "ht/macro/cpp_feature.h"
+#include "ht/core/cpp_feature.h"
 
 namespace ht {
 
@@ -71,11 +72,12 @@ struct __result_error_type<void> {
 
 template<typename Derived, typename result_t>
 struct __result_ok_base {
-  static ALWAYS_INLINE Derived Ok(result_t v) {
+  HT_ALWAYS_INLINE
+  static Derived Ok(result_t v) {
     return Derived{__result_result_type<result_t>{std::move(v)}};
   }
 
-  ALWAYS_INLINE result_t Unwrap() const & {
+  HT_ALWAYS_INLINE result_t Unwrap() const & {
     if (!static_cast<Derived *>(this)->IsOk()) {
       throw ResultUnwrapError("Failed to unwrap!");
     }
@@ -84,7 +86,7 @@ struct __result_ok_base {
         .v;
   }
 
-  ALWAYS_INLINE result_t &Unwrap() & {
+  HT_ALWAYS_INLINE result_t &Unwrap() & {
     if (!static_cast<Derived *>(this)->IsOk()) {
       throw ResultUnwrapError("Failed to unwrap!");
     }
@@ -93,7 +95,7 @@ struct __result_ok_base {
         .v;
   }
 
-  ALWAYS_INLINE result_t &&Unwrap() && {
+  HT_ALWAYS_INLINE result_t &&Unwrap() && {
     if (!static_cast<Derived *>(this)->IsOk()) {
       throw ResultUnwrapError("Failed to unwrap!");
     }
@@ -105,17 +107,17 @@ struct __result_ok_base {
 
 template<typename Derived>
 struct __result_ok_base<Derived, void> {
-  static ALWAYS_INLINE Derived Ok() {
+  HT_ALWAYS_INLINE static Derived Ok() {
     return Derived{__result_result_type<void>{}};
   }
 
-  ALWAYS_INLINE void Unwrap() const {
+  HT_ALWAYS_INLINE void Unwrap() const {
     if (!static_cast<Derived *>(this)->IsOk()) {
       throw ResultUnwrapError("Failed to unwrap!");
     }
   }
 
-  ALWAYS_INLINE void Unwrap() {
+  HT_ALWAYS_INLINE void Unwrap() {
     if (!static_cast<Derived *>(this)->IsOk()) {
       throw ResultUnwrapError("Failed to unwrap!");
     }
@@ -124,7 +126,7 @@ struct __result_ok_base<Derived, void> {
 
 template<typename Derived, typename error_t>
 struct __result_err_base {
-  static ALWAYS_INLINE Derived Err(error_t v) {
+  HT_ALWAYS_INLINE static Derived Err(error_t v) {
     return Derived{__result_error_type<error_t>{std::move(v)}};
   }
 };
@@ -142,14 +144,14 @@ struct __temp_err_object {
 }  // namespace __details
 
 template<typename T>
-ALWAYS_INLINE __details::__temp_ok_object<T> Ok(T v);
+HT_ALWAYS_INLINE __details::__temp_ok_object<T> Ok(T v);
 
-ALWAYS_INLINE __details::__temp_ok_object<void> Ok();
+HT_ALWAYS_INLINE __details::__temp_ok_object<void> Ok();
 
 template<typename T>
-ALWAYS_INLINE __details::__temp_err_object<T> Err(T v);
+HT_ALWAYS_INLINE __details::__temp_err_object<T> Err(T v);
 
-ALWAYS_INLINE __details::__temp_err_object<void> Err();
+HT_ALWAYS_INLINE __details::__temp_err_object<void> Err();
 
 template<typename ResultType, typename ErrorType>
 class Result
@@ -206,11 +208,11 @@ class Result
   friend __details::__temp_err_object<void> Err();
 
  public:
-  ALWAYS_INLINE bool IsOk() const {
+  HT_ALWAYS_INLINE bool IsOk() const {
     return storage_.index() == 1;
   }
 
-  ALWAYS_INLINE bool IsErr() const {
+  HT_ALWAYS_INLINE bool IsErr() const {
     return storage_.index() == 2;
   }
 
@@ -219,22 +221,22 @@ class Result
 };
 
 template<typename T>
-ALWAYS_INLINE __details::__temp_ok_object<T> Ok(T v) {
+HT_ALWAYS_INLINE __details::__temp_ok_object<T> Ok(T v) {
   return __details::__temp_ok_object<T>{
       __details::__result_result_type<T>{std::move(v)}};
 }
 
-ALWAYS_INLINE __details::__temp_ok_object<void> Ok() {
+HT_ALWAYS_INLINE __details::__temp_ok_object<void> Ok() {
   return __details::__temp_ok_object<void>{};
 }
 
 template<typename T>
-ALWAYS_INLINE __details::__temp_err_object<T> Err(T v) {
+HT_ALWAYS_INLINE __details::__temp_err_object<T> Err(T v) {
   return __details::__temp_err_object<T>{
       __details::__result_error_type<T>{std::move(v)}};
 }
 
-ALWAYS_INLINE __details::__temp_err_object<void> Err() {
+HT_ALWAYS_INLINE __details::__temp_err_object<void> Err() {
   return __details::__temp_err_object<void>{};
 }
 

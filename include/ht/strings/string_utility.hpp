@@ -14,6 +14,7 @@
 #include <string_view>
 #include <type_traits>
 
+#include "ht/core/cpp_feature.h"
 #include "ht/strings/display.hpp"
 
 namespace ht {
