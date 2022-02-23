@@ -7,6 +7,8 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <fmt/format.h>
+
 #include <string_view>
 #include <tuple>
 #include <type_traits>

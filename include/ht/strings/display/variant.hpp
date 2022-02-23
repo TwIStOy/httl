@@ -25,7 +25,8 @@ template<typename T>
 inline std::string Demangle() {
   int status;
   std::unique_ptr<char[], void (*)(void *)> result(
-      abi::__cxa_demangle(typeid(T).name(), 0, 0, &status), std::free);
+      abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, &status),
+      std::free);
   return result.get() ? std::string(result.get()) : "???";
 }
 

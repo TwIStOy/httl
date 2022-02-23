@@ -11,6 +11,7 @@
 #include <tuple>
 #include <utility>
 
+#include "ht/core/reflect/helpers.hpp"
 #include "ht/macro/expand.hpp"
 #include "ht/macro/for.h"
 #include "ht/macro/select.h"
