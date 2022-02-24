@@ -1,5 +1,9 @@
-// Copyright (c) 2020 Agora.io, Inc.
+// Template Library for C++
 //
+// Copyright (c) 2020 - present, Hawtian Wang
+// All rights reserved.
+//
+// For the license information refer to version.h.
 
 #include "ht/macro/stealer.h"
 
