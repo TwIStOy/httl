@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - name: Install gcc11
-      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test && sudo apt install -y gcc-11 g++-11
+      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test && sudo apt install -y gcc-11 g++-11 && sudo ln -s /usr/bin/gcc-11 gcc && sudo ln -s /usr/bin/g++-11 g++ && sudo ln -s /usr/bin/g++-11 c++
 
     - uses: actions/checkout@v2
       with:
