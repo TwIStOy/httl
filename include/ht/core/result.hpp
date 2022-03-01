@@ -77,7 +77,7 @@ struct __result_ok_base {
     return Derived{__result_result_type<result_t>{std::move(v)}};
   }
 
-  HT_ALWAYS_INLINE result_t Unwrap() const & {
+  HT_ALWAYS_INLINE result_t unwrap() const & {
     if (!static_cast<Derived *>(this)->IsOk()) {
       throw ResultUnwrapError("Failed to unwrap!");
     }
@@ -86,7 +86,7 @@ struct __result_ok_base {
         .v;
   }
 
-  HT_ALWAYS_INLINE result_t &Unwrap() & {
+  HT_ALWAYS_INLINE result_t &unwrap() & {
     if (!static_cast<Derived *>(this)->IsOk()) {
       throw ResultUnwrapError("Failed to unwrap!");
     }
@@ -95,7 +95,7 @@ struct __result_ok_base {
         .v;
   }
 
-  HT_ALWAYS_INLINE result_t &&Unwrap() && {
+  HT_ALWAYS_INLINE result_t &&unwrap() && {
     if (!static_cast<Derived *>(this)->IsOk()) {
       throw ResultUnwrapError("Failed to unwrap!");
     }
@@ -111,13 +111,13 @@ struct __result_ok_base<Derived, void> {
     return Derived{__result_result_type<void>{}};
   }
 
-  HT_ALWAYS_INLINE void Unwrap() const {
+  HT_ALWAYS_INLINE void unwrap() const {
     if (!static_cast<Derived *>(this)->IsOk()) {
       throw ResultUnwrapError("Failed to unwrap!");
     }
   }
 
-  HT_ALWAYS_INLINE void Unwrap() {
+  HT_ALWAYS_INLINE void unwrap() {
     if (!static_cast<Derived *>(this)->IsOk()) {
       throw ResultUnwrapError("Failed to unwrap!");
     }
@@ -214,6 +214,10 @@ class Result
 
   HT_ALWAYS_INLINE bool IsErr() const {
     return storage_.index() == 2;
+  }
+
+  HT_ALWAYS_INLINE operator bool() const {
+    return IsOk();
   }
 
  private:

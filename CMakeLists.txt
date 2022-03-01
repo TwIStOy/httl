@@ -80,6 +80,9 @@ target_include_directories(httl PUBLIC
 add_subdirectory(third_party/fmt)
 target_link_libraries(httl fmt::fmt)
 
+add_subdirectory(third_party/libuv)
+target_link_libraries(httl uv)
+
 # if (CMAKE_BUILD_TYPE EQUAL "Debug")
 #   include(CodeCoverage)
 #   append_coverage_compiler_flags()
