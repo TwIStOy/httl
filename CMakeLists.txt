@@ -67,7 +67,8 @@ if (MSVC)
   set(WERROR_FLAG /WX)
 endif ()
 
-set(HTTL_SOURCES src/ht/container/impl/avl_tree_base.cpp)
+set(HTTL_SOURCES src/ht/container/impl/avl_tree_base.cpp
+                 src/ht/network/utility_functions.cpp)
 add_library(httl ${HTTL_SOURCES} ${HTTL_HEADERS})
 add_library(httl::httl ALIAS httl)
 

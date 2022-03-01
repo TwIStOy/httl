@@ -5,8 +5,6 @@
 //
 // For the license information refer to version.h.
 
-#pragma once  // NOLINT(build/header_guard)
-
 #include "ht/network/utility_functions.hpp"
 
 #include <fcntl.h>

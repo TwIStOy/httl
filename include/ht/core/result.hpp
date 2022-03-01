@@ -32,7 +32,7 @@ struct __result_result_type {
       : v(std::move(u.v)) {
   }
 
-  explicit __result_result_type(T v) : v(std::move(v)) {
+  explicit __result_result_type(T _v) : v(std::move(_v)) {
   }
 
   T v;
@@ -54,7 +54,7 @@ struct __result_error_type {
   explicit __result_error_type(__result_error_type<U> &&u) : v(std::move(u.v)) {
   }
 
-  explicit __result_error_type(T v) : v(std::move(v)) {
+  explicit __result_error_type(T _v) : v(std::move(_v)) {
   }
 
   T v;
@@ -73,8 +73,8 @@ struct __result_error_type<void> {
 template<typename Derived, typename result_t>
 struct __result_ok_base {
   HT_ALWAYS_INLINE
-  static Derived Ok(result_t v) {
-    return Derived{__result_result_type<result_t>{std::move(v)}};
+  static Derived Ok(result_t _v) {
+    return Derived{__result_result_type<result_t>{std::move(_v)}};
   }
 
   HT_ALWAYS_INLINE result_t unwrap() const & {
@@ -126,8 +126,8 @@ struct __result_ok_base<Derived, void> {
 
 template<typename Derived, typename error_t>
 struct __result_err_base {
-  HT_ALWAYS_INLINE static Derived Err(error_t v) {
-    return Derived{__result_error_type<error_t>{std::move(v)}};
+  HT_ALWAYS_INLINE static Derived Err(error_t _v) {
+    return Derived{__result_error_type<error_t>{std::move(_v)}};
   }
 };
 
@@ -225,9 +225,9 @@ class Result
 };
 
 template<typename T>
-HT_ALWAYS_INLINE __details::__temp_ok_object<T> Ok(T v) {
+HT_ALWAYS_INLINE __details::__temp_ok_object<T> Ok(T _v) {
   return __details::__temp_ok_object<T>{
-      __details::__result_result_type<T>{std::move(v)}};
+      __details::__result_result_type<T>{std::move(_v)}};
 }
 
 HT_ALWAYS_INLINE __details::__temp_ok_object<void> Ok() {
@@ -235,9 +235,9 @@ HT_ALWAYS_INLINE __details::__temp_ok_object<void> Ok() {
 }
 
 template<typename T>
-HT_ALWAYS_INLINE __details::__temp_err_object<T> Err(T v) {
+HT_ALWAYS_INLINE __details::__temp_err_object<T> Err(T _v) {
   return __details::__temp_err_object<T>{
-      __details::__result_error_type<T>{std::move(v)}};
+      __details::__result_error_type<T>{std::move(_v)}};
 }
 
 HT_ALWAYS_INLINE __details::__temp_err_object<void> Err() {
