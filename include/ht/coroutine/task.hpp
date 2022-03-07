@@ -19,7 +19,7 @@ namespace ht {
 
 struct task_promise_base {
   struct final_awaiter {
-    constexpr bool await_ready() const noexcept {
+    [[nodiscard]] static constexpr bool await_ready() noexcept {
       return false;
     }
 
@@ -33,14 +33,13 @@ struct task_promise_base {
     }
   };
 
-  task_promise_base() {
-  }
+  task_promise_base() = default;
 
-  auto initial_suspend() const noexcept {
+  [[nodiscard]] static auto initial_suspend() noexcept {
     return std::suspend_always{};
   }
 
-  auto final_suspend() const noexcept {
+  [[nodiscard]] static auto final_suspend() noexcept {
     return final_awaiter{};
   }
 
@@ -53,8 +52,7 @@ class task;
 template<typename T>
 struct task_promise final : task_promise_base {
  public:
-  task_promise() noexcept {
-  }
+  task_promise() noexcept = default;
 
   task<T> get_return_object() noexcept;
 
@@ -154,14 +152,13 @@ class [[nodiscard]] task {
   struct awaitable_base {
     std::coroutine_handle<promise_type> coro_;
 
-    awaitable_base() {
-    }
+    awaitable_base() = default;
 
     explicit awaitable_base(std::coroutine_handle<promise_type> coro)
         : coro_(coro) {
     }
 
-    bool await_ready() const noexcept {
+    [[nodiscard]] bool await_ready() const noexcept {
       return !coro_ || coro_.done();
     }
 
@@ -172,8 +169,7 @@ class [[nodiscard]] task {
   };
 
  public:
-  task() noexcept {
-  }
+  task() noexcept = default;
 
   explicit task(std::coroutine_handle<promise_type> coroutine)
       : coro_(coroutine) {
@@ -205,7 +201,7 @@ class [[nodiscard]] task {
     return *this;
   }
 
-  bool await_ready() const noexcept {
+  [[nodiscard]] bool await_ready() const noexcept {
     return !coro_ || coro_.done();
   }
 

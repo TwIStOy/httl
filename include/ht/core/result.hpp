@@ -18,7 +18,7 @@ namespace ht {
 
 struct ResultUnwrapError : public std::runtime_error {
   template<typename... Args>
-  ResultUnwrapError(fmt::format_string<Args...> fmt, Args &&...args)
+  explicit ResultUnwrapError(fmt::format_string<Args...> fmt, Args &&...args)
       : runtime_error(fmt::format(fmt, std::forward<Args>(args)...)) {
   }
 };
@@ -164,7 +164,7 @@ class Result
   using error_t  = ErrorType;
 
   template<typename T>
-  Result(__details::__temp_ok_object<T> v) {
+  Result(__details::__temp_ok_object<T> v) {  // NOLINT
     (void)v;
     if constexpr (std::is_same_v<result_t, void>) {
       storage_ = __details::__result_result_type<void>{};
@@ -175,7 +175,7 @@ class Result
   }
 
   template<typename T>
-  Result(__details::__temp_err_object<T> v) {
+  Result(__details::__temp_err_object<T> v) {  // NOLINT
     (void)v;
     if constexpr (std::is_same_v<error_t, void>) {
       storage_ = __details::__result_error_type<void>{};
@@ -208,15 +208,15 @@ class Result
   friend __details::__temp_err_object<void> Err();
 
  public:
-  HT_ALWAYS_INLINE bool IsOk() const {
+  [[nodiscard]] HT_ALWAYS_INLINE bool IsOk() const {
     return storage_.index() == 1;
   }
 
-  HT_ALWAYS_INLINE bool IsErr() const {
+  [[nodiscard]] HT_ALWAYS_INLINE bool IsErr() const {
     return storage_.index() == 2;
   }
 
-  HT_ALWAYS_INLINE operator bool() const {
+  HT_ALWAYS_INLINE operator bool() const {  // NOLINT
     return IsOk();
   }
 

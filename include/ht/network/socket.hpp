@@ -15,7 +15,8 @@
 namespace ht {
 
 struct Socket {
-  Socket(int fd, void *io_context);
+  Socket(int _fd, void *_io_context) : fd(_fd), io_context(_io_context) {
+  }
 
   int fd{-1};
   void *io_context{nullptr};
@@ -30,6 +31,7 @@ HT_ALWAYS_INLINE void Socket::free() {
   if (fd > 0) {
     ::close(fd);
   }
+  fd = -1;
 }
 
 }  // namespace ht
