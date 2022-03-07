@@ -7,9 +7,12 @@
 
 #include "ht/strings/display.hpp"
 
+#include <iostream>
 #include <sstream>
+#include <vector>
 
 #include "catch2/catch_all.hpp"
+#include "ht/strings/string_utility.hpp"
 
 struct I_D_Struct : ht::IDebugDisplay {
   void DebuggingStringify(std::ostream &oss) const {
@@ -92,4 +95,14 @@ TEST_CASE("display test", "[strings][display]") {
 }
 
 TEST_CASE("display test with fmt", "[strings][display]") {
+}
+
+TEST_CASE("JoinString", "[strings]") {
+  std::vector<I_S_Struct> vec;
+  vec.resize(3);
+
+  SECTION("1") {
+    auto str = ht::JoinString(vec, ", ");
+    REQUIRE(str == "I_S_Struct, I_S_Struct, I_S_Struct");
+  }
 }
