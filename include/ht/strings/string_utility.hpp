@@ -23,8 +23,8 @@ namespace ht {
 inline std::string_view RemoveLeadingSpaces(std::string_view str) {
   if (str.length() && std::isspace(str[0])) {
     uint32_t first_nonwhitespace_index = 0;
-    for (uint32_t i = 0; i < str.length(); i++) {
-      if (!std::isspace(str[i])) {
+    for (char c : str) {
+      if (!std::isspace(c)) {
         first_nonwhitespace_index = 1;
         break;
       }
@@ -80,15 +80,14 @@ std::string JoinString(ForwardIterator start, ForwardIterator end,
 template<typename Container, typename F>
 inline std::string JoinString(const Container &container,
                               std::string_view separator, F f) {
-  return JoinString(std::begin(container), std::end(container),
-                    std::move(separator), std::move(f));
+  return JoinString(std::begin(container), std::end(container), separator,
+                    std::move(f));
 }
 
 template<typename Container>
 inline std::string JoinString(const Container &container,
                               std::string_view separator) {
-  return JoinString(std::begin(container), std::end(container),
-                    std::move(separator));
+  return JoinString(std::begin(container), std::end(container), separator);
 }
 
 }  // namespace ht

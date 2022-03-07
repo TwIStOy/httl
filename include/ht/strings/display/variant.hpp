@@ -20,17 +20,17 @@
 
 namespace ht::display_helper {
 
-namespace __impl_variant {
+namespace _impl_variant {
 template<typename T>
 inline std::string Demangle() {
   int status;
   std::unique_ptr<char[], void (*)(void *)> result(
       abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, &status),
       std::free);
-  return result.get() ? std::string(result.get()) : "???";
+  return result ? std::string(result.get()) : "???";
 }
 
-}  // namespace __impl_variant
+}  // namespace _impl_variant
 
 template<typename... Args>
 struct DisplayHelper<std::variant<Args...>> {
@@ -56,7 +56,7 @@ struct DebugDisplayHelper<std::variant<Args...>> {
 
     std::visit(
         [&](const auto &r) {
-          oss << __impl_variant::Demangle<std::decay_t<decltype(r)>>() << ": ";
+          oss << _impl_variant::Demangle<std::decay_t<decltype(r)>>() << ": ";
           DisplayDebugString(oss, r);
         },
         obj);
@@ -68,8 +68,8 @@ struct DebugDisplayHelper<std::variant<Args...>> {
  private:
   template<typename First, typename... Rest>
   static void MergeTypes(std::ostringstream &oss) {
-    oss << __impl_variant::Demangle<First>();
-    ((oss << ", " << __impl_variant::Demangle<Rest>()), ...);
+    oss << _impl_variant::Demangle<First>();
+    ((oss << ", " << _impl_variant::Demangle<Rest>()), ...);
   }
 };
 

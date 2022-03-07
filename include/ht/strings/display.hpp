@@ -21,7 +21,7 @@ struct IDisplay {
 
   virtual void Stringify(std::ostream &oss) const = 0;
 
-  inline std::string Stringify() const;
+  [[nodiscard]] inline std::string Stringify() const;
 };
 
 struct IDebugDisplay {
@@ -29,7 +29,7 @@ struct IDebugDisplay {
 
   virtual void DebuggingStringify(std::ostream &) const = 0;
 
-  inline std::string DebuggingStringify() const;
+  [[nodiscard]] inline std::string DebuggingStringify() const;
 };
 
 namespace display_helper {
@@ -64,9 +64,9 @@ struct DebugDisplayHelper<std::string> {
   }
 };
 
-template<typename _Tp>
-struct DebugDisplayHelper<_Tp, std::enable_if_t<std::is_integral_v<_Tp>>> {
-  inline std::string operator()(const _Tp &s) const {
+template<typename Tp>
+struct DebugDisplayHelper<Tp, std::enable_if_t<std::is_integral_v<Tp>>> {
+  inline std::string operator()(const Tp &s) const {
     return std::to_string(s);
   }
 };
