@@ -52,4 +52,4 @@
                                     __HT_REFL_INS_PROPERTY_REF_ACTION,        \
                                     __HT_REFL_SEP_COMMA, cls, __VA_ARGS__));  \
     }                                                                         \
-  };
+  }

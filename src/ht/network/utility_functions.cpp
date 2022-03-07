@@ -15,6 +15,7 @@
 #include <string>
 
 #include "ht/core/result.hpp"
+#include "ht/network/socket.hpp"
 
 namespace ht {
 

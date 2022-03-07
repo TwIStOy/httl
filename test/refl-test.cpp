@@ -10,6 +10,7 @@
 #include "catch2/catch_all.hpp"
 #include "ht/core/reflect/helpers.hpp"
 #include "ht/core/reflect/macros.h"
+#include "ht/network/socket.hpp"
 
 TEST_CASE("test reflect struct", "[reflect][compile_time]") {
   struct TestType {
