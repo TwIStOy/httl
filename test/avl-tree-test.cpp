@@ -70,7 +70,7 @@ TEST_CASE("erase after insert", "[avl-tree][container]") {
   REQUIRE(tree.size() == 2);
 }
 
-static void benchmark_insert(uint64_t count, bool random) {
+static void benchmark_insert(uint32_t count, bool random) {
   static std::random_device rd;
   static std::mt19937 gen(rd());
 
@@ -106,8 +106,8 @@ static void benchmark_insert(uint64_t count, bool random) {
     std::sort(std::begin(cost), std::end(cost));
     auto min = cost.front();
     auto max = cost.back();
-    auto p95 = cost[count * 0.95];
-    auto p99 = cost[count * 0.99];
+    auto p95 = cost[static_cast<uint64_t>(count * 0.95)];
+    auto p99 = cost[static_cast<uint32_t>(count * 0.99)];
     std::cout << "htmap " << htmp.size() << ", min: " << min << ", "
               << "max: " << max << ", "
               << "p95: " << p95 << ", "
@@ -127,8 +127,8 @@ static void benchmark_insert(uint64_t count, bool random) {
     std::sort(std::begin(cost), std::end(cost));
     auto min = cost.front();
     auto max = cost.back();
-    auto p95 = cost[count * 0.95];
-    auto p99 = cost[count * 0.99];
+    auto p95 = cost[static_cast<uint32_t>(count * 0.95)];
+    auto p99 = cost[static_cast<uint32_t>(count * 0.99)];
     std::cout << "stdmap " << stdmap.size() << ", min: " << min << ", "
               << "max: " << max << ", "
               << "p95: " << p95 << ", "
@@ -161,20 +161,20 @@ struct alloc {
     typedef alloc<U> other;
   };
 
-  alloc() {
-  }
+  alloc() = default;
+
   template<typename U>
-  alloc(const alloc<U> &) {
+  explicit alloc(const alloc<U> &) {
   }
 
-  pointer allocate(size_type n, const void * = 0) {
+  pointer allocate(size_type n, const void * = nullptr) {
     return std::allocator<T>().allocate(n);
   }
   void deallocate(pointer p, size_type n) {
     std::allocator<T>().deallocate(p, n);
   }
 
-  size_type max_size() const {
+  [[nodiscard]] size_type max_size() const {
     return -1;
   }
 
@@ -185,10 +185,10 @@ struct alloc {
     p->~T();
   }
 
-  pointer address(reference x) const throw() {
+  pointer address(reference x) const noexcept {
     return &x;
   }
-  const_pointer address(const_reference x) const throw() {
+  [[nodiscard]] const_pointer address(const_reference x) const noexcept {
     return &x;
   }
 };
@@ -203,7 +203,7 @@ bool operator!=(alloc<T>, alloc<U>) {
   return false;
 }
 TEST_CASE("c++03 allocator", "[avl-tree][container][stl]") {
-  ht::AVLTree<int, int, std::less<int>, alloc<std::pair<const int, int>>> m;
+  ht::AVLTree<int, int, std::less<>, alloc<std::pair<const int, int>>> m;
   m[1];
 }
 
