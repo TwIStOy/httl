@@ -5,12 +5,16 @@
 //
 // For the license information refer to version.h.
 
+#include <iostream>
 #include <utility>
 
 #include "catch2/catch_all.hpp"
 #include "ht/core/reflect/helpers.hpp"
 #include "ht/core/reflect/macros.h"
 #include "ht/network/socket.hpp"
+#include "ht/strings/display.hpp"
+#include "ht/strings/display/reflect.hpp"
+#include "ht/strings/display/variant.hpp"
 
 TEST_CASE("test reflect struct", "[reflect][compile_time]") {
   struct TestType {
@@ -50,6 +54,25 @@ TEST_CASE("test reflect struct", "[reflect][compile_time]") {
 
   REQUIRE(test.foo == 1);
 }
+
+/*
+ * TEST_CASE("test reflect struct display", "[reflect][compile_time]") {
+ *   struct TestType {
+ *     int foo;
+ *     double bar;
+ *     uint32_t foobar;
+ *
+ *     HT_REFL_INS_DECL(TestType, foo, bar, foobar);
+ *   };
+ *
+ *   TestType t{};
+ *   t.foo    = 1;
+ *   t.bar    = 2;
+ *   t.foobar = 3;
+ *
+ *   std::cout << fmt::format("{:?}", t) << std::endl;
+ * }
+ */
 
 TEST_CASE("test reflect struct: Socket", "[reflect][compile_time]") {
   using TestType = ht::Socket;

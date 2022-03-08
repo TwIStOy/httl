@@ -44,35 +44,6 @@ struct DisplayHelper<std::variant<Args...>> {
   }
 };
 
-template<typename... Args>
-struct DebugDisplayHelper<std::variant<Args...>> {
-  using variant_t = std::variant<Args...>;
-
-  std::string operator()(const variant_t &obj) const {
-    std::ostringstream oss;
-    oss << "std::variant<";
-    MergeTypes<Args...>(oss);
-    oss << ">(";
-
-    std::visit(
-        [&](const auto &r) {
-          oss << _impl_variant::Demangle<std::decay_t<decltype(r)>>() << ": ";
-          DisplayDebugString(oss, r);
-        },
-        obj);
-    oss << ")";
-
-    return oss.str();
-  }
-
- private:
-  template<typename First, typename... Rest>
-  static void MergeTypes(std::ostringstream &oss) {
-    oss << _impl_variant::Demangle<First>();
-    ((oss << ", " << _impl_variant::Demangle<Rest>()), ...);
-  }
-};
-
 }  // namespace ht::display_helper
 
 // vim: et sw=2 ts=2

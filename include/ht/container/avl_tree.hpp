@@ -21,7 +21,7 @@ namespace ht {
 
 template<typename Key, typename T, typename Compare = std::less<Key>,
          typename Allocator = std::allocator<std::pair<const Key, T>>>
-class AVLTree : public IDebugDisplay {
+class AVLTree : public IDisplay {
  public:
   using key_type        = Key;
   using mapped_type     = T;
@@ -56,7 +56,7 @@ class AVLTree : public IDebugDisplay {
 
   AVLTree() = default;
 
-  ~AVLTree() {
+  ~AVLTree() override {
     clear();
   }
 
@@ -231,7 +231,7 @@ class AVLTree : public IDebugDisplay {
     return data_node->_value->second;
   }
 
-  size_t size() const {
+  [[nodiscard]] size_t size() const {
     return __base.__count;
   }
 
@@ -275,7 +275,7 @@ class AVLTree : public IDebugDisplay {
     return 0;
   }
 
-  void DebuggingStringify(std::ostream &oss) const {
+  void Stringify(std::ostream &oss) const override {
     oss << "AVLTree " << size() << " nodes: [";
     in_order_traval(__base.__root, [&oss](node_type *node) {
       oss << "(" << node->_value->first << ", " << node->_value->second

@@ -166,18 +166,15 @@ struct _AVL_Tree_Const_Iterator {
 namespace ht::display_helper {
 
 template<typename _Tp>
-struct DebugDisplayHelper<ht::__avl_impl::_AVL_Tree_Iterator<_Tp>> {
+struct DisplayHelper<ht::__avl_impl::_AVL_Tree_Iterator<_Tp>> {
   using value_t = ht::__avl_impl::_AVL_Tree_Iterator<_Tp>;
   std::string operator()(const value_t &v) const {
     if (v._node == nullptr) {
       return "AVLTree-Iterator(null)";
     } else {
       std::ostringstream oss;
-      oss << "AVLTree-Iterator(key = ";
-      DebugStringify(oss, v._node->_value->first);
-      oss << ", value = ";
-      DebugStringify(oss, v._node->_value->second);
-      oss << ")";
+      oss << "AVLTree-Iterator(key = " << v._node->_value->first
+          << ", value = " << v._node->_value->second << ")";
       return oss.str();
     }
   }
