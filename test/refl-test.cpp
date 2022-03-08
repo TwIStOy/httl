@@ -5,6 +5,8 @@
 //
 // For the license information refer to version.h.
 
+#include "ht/strings/display/refl.hpp"
+
 #include <iostream>
 #include <utility>
 
@@ -13,7 +15,6 @@
 #include "ht/core/reflect/macros.h"
 #include "ht/network/socket.hpp"
 #include "ht/strings/display.hpp"
-#include "ht/strings/display/reflect.hpp"
 #include "ht/strings/display/variant.hpp"
 
 TEST_CASE("test reflect struct", "[reflect][compile_time]") {
@@ -55,24 +56,33 @@ TEST_CASE("test reflect struct", "[reflect][compile_time]") {
   REQUIRE(test.foo == 1);
 }
 
-/*
- * TEST_CASE("test reflect struct display", "[reflect][compile_time]") {
- *   struct TestType {
- *     int foo;
- *     double bar;
- *     uint32_t foobar;
- *
- *     HT_REFL_INS_DECL(TestType, foo, bar, foobar);
- *   };
- *
- *   TestType t{};
- *   t.foo    = 1;
- *   t.bar    = 2;
- *   t.foobar = 3;
- *
- *   std::cout << fmt::format("{:?}", t) << std::endl;
- * }
- */
+TEST_CASE("test reflect struct display", "[reflect][compile_time]") {
+  struct TestType2 {
+    int foo;
+    HT_REFL_INS_DECL(TestType2, foo);
+  };
+
+  struct TestType {
+    int foo;
+    double bar;
+    uint32_t foobar;
+    TestType2 test;
+
+    HT_REFL_INS_DECL(TestType, foo, bar, foobar, test);
+  };
+
+  TestType t{};
+  t.foo    = 1;
+  t.bar    = 2;
+  t.foobar = 3;
+  t.test.foo = 4;
+
+  static_assert(ht::has_refl_v<TestType>);
+  static_assert(ht::is_stringifiable_v<TestType>);
+  ht::display_helper::DisplayHelper<TestType> helper;
+
+  std::cout << t << std::endl;
+}
 
 TEST_CASE("test reflect struct: Socket", "[reflect][compile_time]") {
   using TestType = ht::Socket;

@@ -26,7 +26,7 @@ struct IDisplay {
 
 namespace display_helper {
 
-template<typename T>
+template<typename T, typename = void>
 struct DisplayHelper {};
 
 template<typename T, typename = void>
@@ -49,30 +49,14 @@ inline std::string IDisplay::Stringify() const {
   return oss.str();
 }
 
-template<typename T,
-         typename = std::enable_if_t<std::is_base_of_v<IDisplay, T> ||
-                                     display_helper::IsHelperImpled<T>::value>>
-inline std::ostream &operator<<(std::ostream &oss, const T &obj) {
-  if constexpr (std::is_base_of_v<IDisplay, T>) {
-    static_cast<const IDisplay &>(obj).Stringify(oss);
-    return oss;
-  }
-  if constexpr (display_helper::IsHelperImpled<T>::value) {
-    display_helper::DisplayHelper<T> helper;
-    return oss << helper(obj);
-  }
-}
-
-template<typename T,
-         typename = std::enable_if_t<std::is_base_of_v<IDisplay, T> ||
-                                     display_helper::IsHelperImpled<T>::value>>
+template<typename T>
+  requires is_stringifiable_v<T>
 void Stringify(std::ostream &oss, const T &obj) {
   oss << obj;
 }
 
-template<typename T,
-         typename = std::enable_if_t<std::is_base_of_v<IDisplay, T> ||
-                                     display_helper::IsHelperImpled<T>::value>>
+template<typename T>
+  requires is_stringifiable_v<T>
 std::string Stringify(const T &obj) {
   std::ostringstream oss;
   oss << obj;
@@ -80,5 +64,18 @@ std::string Stringify(const T &obj) {
 }
 
 }  // namespace ht
+
+template<typename T>
+  requires ht::is_stringifiable_v<T>
+inline std::ostream &operator<<(std::ostream &oss, const T &obj) {
+  if constexpr (std::is_base_of_v<ht::IDisplay, T>) {
+    static_cast<const ht::IDisplay &>(obj).Stringify(oss);
+    return oss;
+  }
+  if constexpr (ht::display_helper::IsHelperImpled<T>::value) {
+    ht::display_helper::DisplayHelper<T> helper;
+    return oss << helper(obj);
+  }
+}
 
 // vim: et sw=2 ts=2
