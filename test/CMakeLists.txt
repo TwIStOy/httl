@@ -13,4 +13,5 @@ add_httl_test(display-test)
 add_httl_test(refl-test)
 add_httl_test(coroutine-test)
 add_httl_test(ac-automaton-test)
+add_httl_test(fib-heap-test)
 
