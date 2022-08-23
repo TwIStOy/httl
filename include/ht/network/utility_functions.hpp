@@ -13,15 +13,15 @@
 
 namespace ht {
 
-Result<void, std::string> netutil_set_non_blocking(int fd);
+result<void, std::string> netutil_set_non_blocking(int fd);
 
-Result<void, std::string> netutil_set_reuse_addr(int fd);
+result<void, std::string> netutil_set_reuse_addr(int fd);
 
-Result<void, std::string> netutil_set_reuse_port(int fd);
+result<void, std::string> netutil_set_reuse_port(int fd);
 
-Result<void, std::string> netutil_set_tcp_fastopen(int fd);
+result<void, std::string> netutil_set_tcp_fastopen(int fd);
 
-Result<void, std::string> netutil_set_ip4_transparent(int fd);
+result<void, std::string> netutil_set_ip4_transparent(int fd);
 
 }  // namespace ht
 

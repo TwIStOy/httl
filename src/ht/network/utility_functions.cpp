@@ -19,47 +19,47 @@
 
 namespace ht {
 
-Result<void, std::string> netutil_set_non_blocking(int fd) {
+result<void, std::string> netutil_set_non_blocking(int fd) {
   int flags = fcntl(fd, F_GETFL, 0);
   if (flags < 0) {
-    return Err(strerror(errno));
+    return err(strerror(errno));
   }
   if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) {
-    return Err(strerror(errno));
+    return err(strerror(errno));
   }
-  return Ok();
+  return ok();
 }
 
-Result<void, std::string> netutil_set_reuse_addr(int fd) {
+result<void, std::string> netutil_set_reuse_addr(int fd) {
   int v = 1;
   if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &v, sizeof(int)) < 0) {
-    return Err(strerror(errno));
+    return err(strerror(errno));
   }
-  return Ok();
+  return ok();
 }
 
-Result<void, std::string> netutil_set_reuse_port(int fd) {
+result<void, std::string> netutil_set_reuse_port(int fd) {
   int v = 1;
   if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &v, sizeof(int)) < 0) {
-    return Err(strerror(errno));
+    return err(strerror(errno));
   }
-  return Ok();
+  return ok();
 }
 
-Result<void, std::string> netutil_set_tcp_fastopen(int fd) {
+result<void, std::string> netutil_set_tcp_fastopen(int fd) {
   int v = 5;
   if (setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &v, sizeof(int)) < 0) {
-    return Err(strerror(errno));
+    return err(strerror(errno));
   }
-  return Ok();
+  return ok();
 }
 
-Result<void, std::string> netutil_set_ip4_transparent(int fd) {
+result<void, std::string> netutil_set_ip4_transparent(int fd) {
   int v = 1;
   if (setsockopt(fd, IPPROTO_TCP, IP_TRANSPARENT, &v, sizeof(v)) < 0) {
-    return Err(strerror(errno));
+    return err(strerror(errno));
   }
-  return Ok();
+  return ok();
 }
 
 }  // namespace ht
