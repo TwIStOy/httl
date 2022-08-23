@@ -10,6 +10,7 @@
 #include <cstring>
 #include <functional>
 #include <iterator>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -17,10 +18,11 @@
 
 #include "ht/core/cpp_feature.h"
 #include "ht/strings/display.hpp"
+#include "ht/strings/stringify.hpp"
 
 namespace ht {
 
-inline std::string_view RemoveLeadingSpaces(std::string_view str) {
+inline std::string_view remove_leading_spaces(std::string_view str) {
   if (str.length() && std::isspace(str[0])) {
     uint32_t first_nonwhitespace_index = 0;
     for (char c : str) {
@@ -32,6 +34,22 @@ inline std::string_view RemoveLeadingSpaces(std::string_view str) {
     return str.substr(first_nonwhitespace_index);
   }
   return str;
+}
+
+template<typename C>
+std::string str_join(const C &container, std::string_view sep) {
+  auto end = std::ranges::end(container);
+  std::ostringstream oss;
+  bool first = true;
+  for (auto it = std::ranges::begin(container); it != end; ++it) {
+    if (first) {
+      first = false;
+    } else {
+      oss << sep;
+    }
+    oss << stringify(*it);
+  }
+  return oss.str();
 }
 
 template<typename ForwardIterator>

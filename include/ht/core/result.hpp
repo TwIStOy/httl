@@ -12,6 +12,7 @@
 #include <concepts>
 #include <stdexcept>
 #include <type_traits>
+#include <utility>
 #include <variant>
 
 #include "ht/core/box.hpp"
@@ -58,38 +59,103 @@ struct result {
   using error_type = ET;
 
  private:
-  enum class _stat { empty, value, error };
-  _stat stat_{_stat::empty};
+  enum class _state { empty, value, error };
+  _state state_{_state::empty};
   union {
     box<value_type> value_;
     box<error_type> error_;
   };
 
+  void reset() {
+    auto old = std::exchange(state_, _state::empty);
+    switch (old) {
+      case _state::value:
+        destruct_union_member(&value_);
+        break;
+      case _state::error:
+        destruct_union_member(&error_);
+        break;
+      case _state::empty:
+        break;
+    }
+  }
+
  public:
+  result() = default;
+
   template<typename U>
     requires std::convertible_to<U, value_type>
-  result(__impl::temp_wrapper<__impl::value_tag, U> v) {  // NOLINT
+  result &set(__impl::temp_wrapper<__impl::value_tag, U> v) {
+    reset();
     if constexpr (std::is_void_v<U>) {
       construct_union_member(&value_);
     } else {
       construct_union_member(&value_, std::move(v.value));
     }
-    stat_ = _stat::value;
+    state_ = _state::value;
+    return *this;
+  }
+
+  template<typename... Args>
+    requires(std::constructible_from<value_type, Args...> ||
+             (std::same_as<value_type, void> && sizeof...(Args) == 0))
+  result &set_value(Args &&...args) {
+    reset();
+    construct_union_member(&value_, std::forward<Args>(args)...);
+    state_ = _state::value;
+    return *this;
   }
 
   template<typename U>
     requires std::convertible_to<U, error_type>
-  result(__impl::temp_wrapper<__impl::error_tag, U> v) {  // NOLINT
+  result &set(__impl::temp_wrapper<__impl::error_tag, U> v) {
+    reset();
     if constexpr (std::is_void_v<U>) {
       construct_union_member(&error_);
     } else {
       construct_union_member(&error_, std::move(v.value));
     }
-    stat_ = _stat::error;
+    state_ = _state::error;
+    return *this;
+  }
+
+  template<typename... Args>
+    requires(std::constructible_from<error_type, Args...> ||
+             (std::same_as<error_type, void> && sizeof...(Args) == 0))
+  result &set_error(Args &&...args) {
+    reset();
+    construct_union_member(&error_, std::forward<Args>(args)...);
+    state_ = _state::error;
+    return *this;
+  }
+
+  template<typename U>
+    requires std::convertible_to<U, value_type>
+  result(__impl::temp_wrapper<__impl::value_tag, U> v) {  // NOLINT
+    set(std::move(v));
+  }
+
+  template<typename U>
+    requires std::convertible_to<U, error_type>
+  result(__impl::temp_wrapper<__impl::error_tag, U> v) {  // NOLINT
+    set(std::move(v));
+  }
+
+  template<typename T, typename U>
+    requires std::convertible_to<U, value_type> &&
+             (std::same_as<T, __impl::value_tag> ||
+              std::same_as<T, __impl::error_tag>)
+  result &operator=(__impl::temp_wrapper<T, U> v) {
+    set(std::move(v));
+    return *this;
+  }
+
+  ~result() {
+    reset();
   }
 
   [[nodiscard]] HT_ALWAYS_INLINE bool is_ok() const noexcept {
-    return stat_ == _stat::value;
+    return state_ == _state::value;
   }
 
   template<typename Func>
@@ -104,7 +170,7 @@ struct result {
   }
 
   [[nodiscard]] HT_ALWAYS_INLINE bool is_err() const noexcept {
-    return stat_ == _stat::error;
+    return state_ == _state::error;
   }
 
   template<typename Func>
