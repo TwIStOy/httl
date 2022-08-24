@@ -10,7 +10,7 @@
 #include <iterator>
 
 #include "ht/container/impl/avl_tree_base.hpp"
-#include "ht/strings/display.hpp"
+#include "ht/strings/stringify.hpp"
 
 namespace ht::__avl_impl {
 
@@ -78,6 +78,19 @@ struct _AVL_Tree_Iterator {
 
   bool operator!=(const _Self &x) const noexcept {
     return _node != x._node;
+  }
+
+  friend std::string tag_invoke(ht::tag_t<ht::debug_stringify>,
+                                const _AVL_Tree_Iterator &v, uint16_t,
+                                int16_t) {
+    if (v._node == nullptr) {
+      return "AVLTree-Iterator(null)";
+    } else {
+      std::ostringstream oss;
+      oss << "AVLTree-Iterator(key = " << v._node->_value->first
+          << ", value = " << v._node->_value->second << ")";
+      return oss.str();
+    }
   }
 
   _node_type _node;
@@ -158,26 +171,20 @@ struct _AVL_Tree_Const_Iterator {
     return _node != x._node;
   }
 
-  _node_type _node;
-};
-
-}  // namespace ht::__avl_impl
-
-namespace ht::display_helper {
-
-template<typename _Tp>
-struct DisplayHelper<ht::__avl_impl::_AVL_Tree_Iterator<_Tp>> {
-  using value_t = ht::__avl_impl::_AVL_Tree_Iterator<_Tp>;
-  std::string operator()(const value_t &v) const {
+  friend std::string tag_invoke(ht::tag_t<ht::debug_stringify>,
+                                const _AVL_Tree_Const_Iterator &v, uint16_t,
+                                int16_t) {
     if (v._node == nullptr) {
-      return "AVLTree-Iterator(null)";
+      return "AVLTree-Const-Iterator(null)";
     } else {
       std::ostringstream oss;
-      oss << "AVLTree-Iterator(key = " << v._node->_value->first
+      oss << "AVLTree-Const-Iterator(key = " << v._node->_value->first
           << ", value = " << v._node->_value->second << ")";
       return oss.str();
     }
   }
+
+  _node_type _node;
 };
 
-}  // namespace ht::display_helper
+}  // namespace ht::__avl_impl

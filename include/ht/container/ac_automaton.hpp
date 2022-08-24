@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "fmt/format.h"
-#include "ht/strings/display.hpp"
+#include "ht/strings/stringify.hpp"
 
 namespace ht {
 
@@ -166,63 +166,55 @@ basic_ac_automaton<T>::query(str_view_t pattern) const {
 
 using ac_automaton = basic_ac_automaton<>;
 
-namespace display_helper {
+template<typename T>
+auto tag_invoke(ht::tag_t<ht::stringify>,
+                const _basic_ac_automaton_node<T> &node, uint16_t, int16_t) {
+  if (node.is_root_) {
+    return "root";
+  }
+  return fmt::format("node_{}", node.index_);
+}
 
 template<typename T>
-struct DisplayHelper<_basic_ac_automaton_node<T>> {
-  using value_t = _basic_ac_automaton_node<T>;
-  std::string operator()(const value_t &v) const {
-    if (v.is_root_) {
-      return "root";
-    }
-    return fmt::format("node_{}", v.index_);
+auto tag_invoke(ht::tag_t<ht::stringify>, const basic_ac_automaton<T> &v,
+                uint16_t, int16_t) {
+  using fmt::operator""_a;
+
+  std::ostringstream os;
+  os << "#@startdot\n";
+  os << "digraph AcAutomaton {\n";
+
+  os << fmt::format("// nodes count: {}\n", v.nodes_.size());
+
+  // define all nodes first
+  for (auto &node : v.nodes_) {
+    os << fmt::format(
+        "{name}[label=\"{label}\", shape=\"box\", style=filled, "
+        "fillcolor=\"{color}\"]\n",
+        "label"_a = node.GetLabel(), "name"_a = *node,
+        "color"_a = node.finished_ == -1 ? "#FFFFFF" : "#ADFF2F");
   }
-};
 
-template<typename T>
-struct DisplayHelper<basic_ac_automaton<T>> {
-  using value_t = basic_ac_automaton<T>;
-  std::string operator()(const value_t &v) const {
-    using fmt::operator""_a;
-
-    std::ostringstream os;
-    os << "#@startdot\n";
-    os << "digraph AcAutomaton {\n";
-
-    os << fmt::format("// nodes count: {}\n", v.nodes_.size());
-
-    // define all nodes first
-    for (auto &node : v.nodes_) {
-      os << fmt::format(
-          "{name}[label=\"{label}\", shape=\"box\", style=filled, "
-          "fillcolor=\"{color}\"]\n",
-          "label"_a = node.GetLabel(), "name"_a = *node,
-          "color"_a = node.finished_ == -1 ? "#FFFFFF" : "#ADFF2F");
+  // define "next" edges
+  for (auto &node : v.nodes_) {
+    for (auto it : node.next_) {
+      os << fmt::format("{src}->{tgt}[label=\"{ch}\"]\n", "src"_a = *node,
+                        "tgt"_a = *it.second, "ch"_a = it.first);
     }
-
-    // define "next" edges
-    for (auto &node : v.nodes_) {
-      for (auto it : node.next_) {
-        os << fmt::format("{src}->{tgt}[label=\"{ch}\"]\n", "src"_a = *node,
-                          "tgt"_a = *it.second, "ch"_a = it.first);
-      }
-    }
-
-    os << "edge[color=\"#FF6347\"]\n";
-
-    // define "failed" edges
-    for (auto &node : v.nodes_) {
-      os << fmt::format("{src}->{tgt}[label=\"failed\"]\n", "src"_a = *node,
-                        "tgt"_a = *node.failed_);
-    }
-
-    os << "}\n";
-    os << "#@enddot\n";
-    return os.str();
   }
-};
 
-}  // namespace display_helper
+  os << "edge[color=\"#FF6347\"]\n";
+
+  // define "failed" edges
+  for (auto &node : v.nodes_) {
+    os << fmt::format("{src}->{tgt}[label=\"failed\"]\n", "src"_a = *node,
+                      "tgt"_a = *node.failed_);
+  }
+
+  os << "}\n";
+  os << "#@enddot\n";
+  return os.str();
+}
 
 }  // namespace ht
 

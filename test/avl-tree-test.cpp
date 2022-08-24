@@ -13,6 +13,7 @@
 #include "container_utils.hpp"
 #include "ht/container/avl_tree.hpp"
 #include "ht/macro/stealer.h"
+#include "ht/strings/stringify.hpp"
 
 TEST_CASE("find after insert", "[avl-tree][container]") {
   ht::AVLTree<std::string, int> tree = {};
@@ -22,32 +23,32 @@ TEST_CASE("find after insert", "[avl-tree][container]") {
 
   REQUIRE(tree.size() == 3);
 
-  std::cout << ht::Stringify(tree) << std::endl;
+  std::cout << ht::debug_stringify(tree) << std::endl;
 
   {
     auto it = tree.find("foo");
-    std::cout << ht::Stringify(it) << std::endl;
+    std::cout << ht::debug_stringify(it) << std::endl;
     REQUIRE(it != tree.end());
     REQUIRE(it->first == "foo");
     REQUIRE(it->second == 1);
   }
   {
     auto it = tree.find("bar");
-    std::cout << ht::Stringify(it) << std::endl;
+    std::cout << ht::debug_stringify(it) << std::endl;
     REQUIRE(it != tree.end());
     REQUIRE(it->first == "bar");
     REQUIRE(it->second == 2);
   }
   {
     auto it = tree.find("foobar");
-    std::cout << ht::Stringify(it) << std::endl;
+    std::cout << ht::debug_stringify(it) << std::endl;
     REQUIRE(it != tree.end());
     REQUIRE(it->first == "foobar");
     REQUIRE(it->second == 3);
   }
   {
     auto it = tree.find("foobarfoo");
-    std::cout << ht::Stringify(it) << std::endl;
+    std::cout << ht::debug_stringify(it) << std::endl;
     REQUIRE(it == tree.end());
   }
 }
@@ -60,7 +61,7 @@ TEST_CASE("erase after insert", "[avl-tree][container]") {
 
   REQUIRE(tree.size() == 3);
 
-  std::cout << ht::Stringify(tree) << std::endl;
+  std::cout << ht::debug_stringify(tree) << std::endl;
 
   {
     auto cnt = tree.erase("foo");

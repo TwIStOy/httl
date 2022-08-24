@@ -11,17 +11,18 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <utility>
 
 #include "ht/container/impl/avl_tree_base.hpp"
 #include "ht/container/impl/avl_tree_iterator.hpp"
-#include "ht/strings/display.hpp"
+#include "ht/strings/stringify.hpp"
 
 namespace ht {
 
 template<typename Key, typename T, typename Compare = std::less<Key>,
          typename Allocator = std::allocator<std::pair<const Key, T>>>
-class AVLTree : public IDisplay {
+class AVLTree {
  public:
   using key_type        = Key;
   using mapped_type     = T;
@@ -56,7 +57,7 @@ class AVLTree : public IDisplay {
 
   AVLTree() = default;
 
-  ~AVLTree() override {
+  ~AVLTree() {
     clear();
   }
 
@@ -275,13 +276,16 @@ class AVLTree : public IDisplay {
     return 0;
   }
 
-  void Stringify(std::ostream &oss) const override {
-    oss << "AVLTree " << size() << " nodes: [";
-    in_order_traval(__base.__root, [&oss](node_type *node) {
+  friend auto tag_invoke(ht::tag_t<ht::debug_stringify>, const AVLTree &value,
+                         uint16_t, int16_t) {
+    std::ostringstream oss;
+    oss << "AVLTree " << value.size() << " nodes: [";
+    value.in_order_traval(value.__base.__root, [&oss](node_type *node) {
       oss << "(" << node->_value->first << ", " << node->_value->second
           << "), ";
     });
     oss << "]";
+    return oss.str();
   }
 
   iterator begin() {

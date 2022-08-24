@@ -5,8 +5,6 @@
 //
 // For the license information refer to version.h.
 
-#include "ht/strings/display/refl.hpp"
-
 #include <iostream>
 #include <utility>
 
@@ -14,8 +12,7 @@
 #include "ht/core/reflect/helpers.hpp"
 #include "ht/core/reflect/macros.h"
 #include "ht/network/socket.hpp"
-#include "ht/strings/display.hpp"
-#include "ht/strings/display/variant.hpp"
+#include "ht/strings/stringify.hpp"
 
 TEST_CASE("test reflect struct", "[reflect][compile_time]") {
   struct TestType {
@@ -72,16 +69,14 @@ TEST_CASE("test reflect struct display", "[reflect][compile_time]") {
   };
 
   TestType t{};
-  t.foo    = 1;
-  t.bar    = 2;
-  t.foobar = 3;
+  t.foo      = 1;
+  t.bar      = 2;
+  t.foobar   = 3;
   t.test.foo = 4;
 
   static_assert(ht::has_refl_v<TestType>);
-  static_assert(ht::is_stringifiable_v<TestType>);
-  ht::display_helper::DisplayHelper<TestType> helper;
 
-  std::cout << t << std::endl;
+  std::cout << ht::stringify(t) << std::endl;
 }
 
 TEST_CASE("test reflect struct: Socket", "[reflect][compile_time]") {

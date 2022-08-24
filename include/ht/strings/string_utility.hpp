@@ -17,7 +17,6 @@
 #include <type_traits>
 
 #include "ht/core/cpp_feature.h"
-#include "ht/strings/display.hpp"
 #include "ht/strings/stringify.hpp"
 
 namespace ht {
@@ -52,60 +51,20 @@ std::string str_join(const C &container, std::string_view sep) {
   return oss.str();
 }
 
-template<typename ForwardIterator>
-std::string JoinString(ForwardIterator start, ForwardIterator end,
-                       std::string_view separator) {
-  using value_t = typename std::iterator_traits<ForwardIterator>::value_type;
-
+template<typename C, typename F>
+std::string str_join(const C &container, std::string_view sep, F &&f) {
+  auto end = std::ranges::end(container);
   std::ostringstream oss;
-
-  if constexpr (std::is_base_of_v<IDisplay, value_t>) {
-    for (auto it = start; it != end; ++it) {
-      if (it != start) {
-        oss << separator;
-      }
-      (*it).Stringify(oss);
-    }
-  } else {
-    for (auto it = start; it != end; ++it) {
-      if (it != start) {
-        oss << separator;
-      }
-      oss << *it;
-    }
-  }
-
-  return oss.str();
-}
-
-template<typename ForwardIterator, typename F>
-std::string JoinString(ForwardIterator start, ForwardIterator end,
-                       std::string_view separator, F f) {
-  using value_t = typename std::iterator_traits<ForwardIterator>::value_type;
-
-  std::ostringstream oss;
-
-  for (auto it = start; it != end; ++it) {
-    if (it != start) {
-      oss << separator;
+  bool first = true;
+  for (auto it = std::ranges::begin(container); it != end; ++it) {
+    if (first) {
+      first = false;
+    } else {
+      oss << sep;
     }
     oss << f(*it);
   }
-
   return oss.str();
-}
-
-template<typename Container, typename F>
-inline std::string JoinString(const Container &container,
-                              std::string_view separator, F f) {
-  return JoinString(std::begin(container), std::end(container), separator,
-                    std::move(f));
-}
-
-template<typename Container>
-inline std::string JoinString(const Container &container,
-                              std::string_view separator) {
-  return JoinString(std::begin(container), std::end(container), separator);
 }
 
 }  // namespace ht
