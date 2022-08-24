@@ -16,10 +16,10 @@ namespace ht::core::__tag_invoke {
 void tag_invoke();
 
 struct _fn {
-  template<typename CPO, typename... Args>
-  constexpr auto operator()(CPO cpo, Args &&...args) const
-      noexcept(noexcept(tag_invoke(std::move(cpo),
-                                   std::forward<Args>(args)...))) {
+  template<typename CPO, typename... Args,
+           bool noexcept_ = noexcept(tag_invoke(std::declval<CPO>(),
+                                                std::declval<Args>()...))>
+  constexpr auto operator()(CPO cpo, Args &&...args) const noexcept(noexcept_) {
     return tag_invoke(std::move(cpo), std::forward<Args>(args)...);
   }
 };
@@ -37,10 +37,15 @@ template<auto &CPO>
 using tag_t = std::remove_cvref_t<decltype(CPO)>;
 
 template<typename Tag, typename... Args>
-concept tag_invocable = std::invocable<decltype(tag_invoke), Tag, Args...>;
+concept tag_invocable = std::is_invocable_v<decltype(tag_invoke), Tag, Args...>;
 
 template<class Tag, class... Args>
 concept nothrow_tag_invocable =
+    tag_invocable<Tag, Args...> &&
+    std::is_nothrow_invocable_v<decltype(tag_invoke), Tag, Args...>;
+
+template<class Tag, class... Args>
+inline bool constexpr nothrow_tag_invocable_v =
     tag_invocable<Tag, Args...> &&
     std::is_nothrow_invocable_v<decltype(tag_invoke), Tag, Args...>;
 

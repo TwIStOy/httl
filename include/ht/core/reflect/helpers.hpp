@@ -30,7 +30,7 @@ template<typename T>
 using has_refl = std::integral_constant<bool, __details::_refl_info<T>::value>;
 
 template<typename T>
-constexpr bool has_refl_v = __details::_refl_info<T>::value;
+inline constexpr bool has_refl_v = __details::_refl_info<T>::value;
 
 template<typename T>
 concept refl_exists = has_refl_v<T>;
