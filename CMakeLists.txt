@@ -69,9 +69,8 @@ endif ()
 
 
 file(GLOB_RECURSE HTTL_HEADERS CONFIGURE_DEPENDS include/**/*.h include/**/*.hpp)
-file(GLOB_RECURSE HTTL_SOURCES CONFIGURE_DEPENDS src/**/*.cpp)
 
-add_library(httl ${HTTL_SOURCES} ${HTTL_HEADERS})
+add_library(httl ${HTTL_HEADERS})
 add_library(httl::httl ALIAS httl)
 
 target_compile_options(httl PRIVATE ${WERROR_FLAG})
