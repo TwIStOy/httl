@@ -11,18 +11,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace ht {
+#include "ht/core/impl/for_.hpp"
+#include "ht/core/impl/collect.hpp"
+#include "ht/core/impl/cartesian_product.hpp"
 
-template<typename Func, std::size_t... Is>
-void for_(Func &&func, std::index_sequence<Is...>) {
-  (func(std::integral_constant<std::size_t, Is>{}), ...);
-}
-
-template<std::size_t N, typename Func>
-void for_(Func &&func) {
-  for_(std::forward<Func>(func), std::make_index_sequence<N>());
-}
-
-}  // namespace ht
-
-// vim: et sw=2 ts=2
