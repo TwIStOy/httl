@@ -13,5 +13,4 @@
 
 #include "ht/core/impl/for_.hpp"
 #include "ht/core/impl/collect.hpp"
-#include "ht/core/impl/cartesian_product.hpp"
 

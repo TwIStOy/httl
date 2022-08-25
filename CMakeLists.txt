@@ -16,6 +16,9 @@ if (NOT DEFINED HTTL_MASTER_PROJECT)
   endif()
 endif()
 
+option(HTTL_TEST "Generate test targets" ${HTTL_MASTER_PROJECT})
+option(HTTL_FMT_EXTERNAL "Use external fmt library instead of bundled" OFF)
+
 project(httl LANGUAGES CXX)
 
 SET(CMAKE_CXX_STANDARD 20)
@@ -68,26 +71,31 @@ if (MSVC)
 endif ()
 
 
-file(GLOB_RECURSE HTTL_HEADERS CONFIGURE_DEPENDS include/**/*.h include/**/*.hpp)
-
-add_library(httl ${HTTL_HEADERS})
+# add_library(httl ${HTTL_HEADERS})
+add_library(httl INTERFACE)
 add_library(httl::httl ALIAS httl)
 
-target_compile_options(httl PRIVATE ${WERROR_FLAG})
-target_compile_options(httl PRIVATE ${PEDANTIC_COMPILE_FLAGS})
-target_include_directories(httl PUBLIC
+target_include_directories(httl INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-add_subdirectory(third_party/fmt)
-target_link_libraries(httl fmt::fmt)
+if (NOT HTTL_FMT_EXTERNAL)
+  add_subdirectory(third_party/fmt)
+else()
+  if (NOT TARGET fmt::fmt)
+    find_package(fmt CONFIG REQUIRED)
+  endif()
+
+  set(PKG_CONFIG_REQUIRES fmt)
+endif()
+
+target_compile_definitions(httl INTERFACE HTTL_FMT_EXTERNAL)
+target_link_libraries(httl INTERFACE fmt::fmt)
 
 # if (CMAKE_BUILD_TYPE EQUAL "Debug")
 #   include(CodeCoverage)
 #   append_coverage_compiler_flags()
 # endif()
-
-option(HTTL_TEST "Generate test targets" ${HTTL_MASTER_PROJECT})
 
 if (HTTL_TEST)
   enable_testing()
