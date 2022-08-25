@@ -24,7 +24,8 @@ namespace ht {
 
 template<std::size_t N, typename Func>
 void for_(Func &&func) {
-  for_(std::forward<Func>(func), std::make_index_sequence<N>());
+  _algorithm_impl::for_(std::forward<Func>(func),
+                        std::make_index_sequence<N>());
 }
 
 }  // namespace ht

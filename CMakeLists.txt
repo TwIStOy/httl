@@ -18,6 +18,7 @@ endif()
 
 option(HTTL_TEST "Generate test targets" ${HTTL_MASTER_PROJECT})
 option(HTTL_FMT_EXTERNAL "Use external fmt library instead of bundled" OFF)
+option(HTTL_INSTALL "Generate the install target" ${HTTL_MASTER_PROJECT})
 
 project(httl LANGUAGES CXX)
 
@@ -92,17 +93,20 @@ endif()
 target_compile_definitions(httl INTERFACE HTTL_FMT_EXTERNAL)
 target_link_libraries(httl INTERFACE fmt::fmt)
 
-# if (CMAKE_BUILD_TYPE EQUAL "Debug")
-#   include(CodeCoverage)
-#   append_coverage_compiler_flags()
-# endif()
-
-if (HTTL_TEST)
+if (HTTL_TEST AND HTTL_MASTER_PROJECT)
   enable_testing()
   add_subdirectory(third_party/Catch2)
   add_subdirectory(test)
 endif()
 
-
+if (HTTL_INSTALL)
+  message(STATUS "Generating install")
+  install(DIRECTORY include/ DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+  install(TARGETS httl
+          EXPORT httl
+          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
 
