@@ -5,6 +5,7 @@
 //
 // For the license information refer to version.h.
 
+#include <functional>
 #include <type_traits>
 
 #include "catch2/catch_all.hpp"
@@ -95,6 +96,15 @@ TEST_CASE("named wrapper, skill nagatable", "[core][named_wrapper]") {
 
   REQUIRE(std::is_same_v<std::decay_t<decltype(c)>, named_i32>);
   REQUIRE(c.value() == -10);
+}
+
+TEST_CASE("named wrapper, skill hash", "[core][named_wrapper]") {
+  using named_i32 = ht::named_wrapper<int32_t, struct test_32_tag,
+                                      ht::named_wrapper_skills::hashable>;
+
+  named_i32 a(10u);
+
+  std::hash<named_i32>{}(a);
 }
 
 // vim: et sw=2 ts=2

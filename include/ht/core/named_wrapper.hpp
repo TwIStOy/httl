@@ -188,10 +188,13 @@ struct hashable : __detail::crtp_helper<T, hashable> {};
 
 namespace std {
 
-template<typename T>
-struct hash<ht::named_wrapper_skills::hashable<T>> {  // NOLINT
-  auto operator()(const T &v) const {
-    return std::hash<typename T::value_type>{}(v.value());
+template<typename T, typename Tag, template<typename> class... Skills>
+  requires(std::same_as<Skills<T>, ht::named_wrapper_skills::hashable<T>> ||
+           ...)
+struct hash<ht::named_wrapper<T, Tag, Skills...>> {  // NOLINT
+  using value_type = ht::named_wrapper<T, Tag, Skills...>;
+  auto operator()(const value_type &v) const {
+    return std::hash<T>{}(v.value());
   }
 };
 
