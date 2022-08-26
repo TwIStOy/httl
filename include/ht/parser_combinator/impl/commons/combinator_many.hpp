@@ -21,7 +21,7 @@
 #include "ht/parser_combinator/impl/input_stream.hpp"
 #include "ht/parser_combinator/impl/parser.hpp"
 
-namespace ht::combinator {
+namespace ht::combinators {
 
 template<typename P, template<typename> class S = std::vector>
 auto combinator_many(P &&p, uint32_t at_least = 0) {
@@ -48,7 +48,16 @@ auto combinator_many(P &&p, uint32_t at_least = 0) {
                            at_least, res.size()));
   });
 }
-}  // namespace ht::combinator
+}  // namespace ht::combinators
 
+namespace ht::_parser_combinator_impl {
+
+template<typename T>
+  requires is_parser_v<std::decay_t<T>>
+auto operator*(T &&p0, uint32_t at_least) {
+  return combinators::combinator_many(std::forward<T>(p0), at_least);
+}
+
+}  // namespace ht::_parser_combinator_impl
 
 // vim: et sw=2 ts=2
