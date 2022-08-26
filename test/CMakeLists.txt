@@ -15,4 +15,5 @@ add_httl_test(ac-automaton-test)
 add_httl_test(fib-heap-test)
 add_httl_test(result-test)
 add_httl_test(stringify-test)
+add_httl_test(named-wrapper-test)
 
