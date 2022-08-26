@@ -295,6 +295,12 @@ HT_ALWAYS_INLINE __impl::temp_wrapper<__impl::error_tag, void> err() {
   return {};
 }
 
+template<typename T>
+inline constexpr bool is_result_v = false;
+
+template<typename T, typename U>
+inline constexpr bool is_result_v<result<T, U>> = true;
+
 }  // namespace ht
 
 // vim: et sw=2 ts=2
