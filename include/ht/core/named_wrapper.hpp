@@ -60,19 +60,19 @@ struct named_wrapper : public Skills<named_wrapper<T, Tag, Skills...>>... {
     return *this;
   }
 
-  operator value_type &() & {  // NOLINT
+  explicit operator value_type &() & {
     return value_;
   }
 
-  operator value_type &&() && {  // NOLINT
+  explicit operator value_type &&() && {
     return std::move(value_);
   }
 
-  operator const value_type &() const & {  // NOLINT
+  explicit operator const value_type &() const & {
     return value_;
   }
 
-  operator const value_type &&() const && {  // NOLINT
+  explicit operator const value_type &&() const && {
     return std::move(value_);
   }
 
@@ -123,20 +123,20 @@ struct crtp_helper {
   }
 
   const T &__downcast() const {
-    return *static_cast<T *>(this);
+    return *static_cast<const T *>(this);
   }
 };
 
 }  // namespace __detail
 
-#define __HT_SELF  (static_cast<T *>(this))
-#define __HT_VALUE (static_cast<T *>(this)->value())
+#define __HT_SELF  (this->__downcast())
+#define __HT_VALUE (this->__downcast().value())
 
 template<typename T>
 struct incrementable : __detail::crtp_helper<T, incrementable> {
   T &operator+=(const T &rhs) {
     __HT_VALUE += rhs.value();
-    return *__HT_SELF;
+    return __HT_SELF;
   }
 };
 
@@ -144,7 +144,7 @@ template<typename T>
 struct pre_incrementable : __detail::crtp_helper<T, pre_incrementable> {
   T &operator++() {
     ++__HT_VALUE;
-    return *__HT_SELF;
+    return __HT_SELF;
   }
 };
 
