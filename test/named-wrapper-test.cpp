@@ -9,9 +9,9 @@
 #include <type_traits>
 
 #include "catch2/catch_all.hpp"
-#include "ht/core/named_wrapper.hpp"
+#include "ht/container/named_wrapper.hpp"
 
-TEST_CASE("construct from T", "[core][named_wrapper]") {
+TEST_CASE("construct from T", "[container][named_wrapper]") {
   using named_u32 = ht::named_wrapper<uint32_t, struct test_u32_tag>;
 
   named_u32 a(10u);
@@ -21,7 +21,7 @@ TEST_CASE("construct from T", "[core][named_wrapper]") {
   REQUIRE(b.value() == 0);
 }
 
-TEST_CASE("named wrapper, skill incrementable", "[core][named_wrapper]") {
+TEST_CASE("named wrapper, skill incrementable", "[container][named_wrapper]") {
   using named_u32 = ht::named_wrapper<uint32_t, struct test_u32_tag,
                                       ht::named_wrapper_skills::incrementable>;
 
@@ -33,7 +33,8 @@ TEST_CASE("named wrapper, skill incrementable", "[core][named_wrapper]") {
   REQUIRE(a.value() == 30);
 }
 
-TEST_CASE("named wrapper, skill pre-incrementable", "[core][named_wrapper]") {
+TEST_CASE("named wrapper, skill pre-incrementable",
+          "[container][named_wrapper]") {
   using named_u32 =
       ht::named_wrapper<uint32_t, struct test_u32_tag,
                         ht::named_wrapper_skills::pre_incrementable>;
@@ -46,7 +47,7 @@ TEST_CASE("named wrapper, skill pre-incrementable", "[core][named_wrapper]") {
   REQUIRE(a.value() == 11);
 }
 
-TEST_CASE("named wrapper, skill addable", "[core][named_wrapper]") {
+TEST_CASE("named wrapper, skill addable", "[container][named_wrapper]") {
   using named_u32 = ht::named_wrapper<uint32_t, struct test_u32_tag,
                                       ht::named_wrapper_skills::addable>;
 
@@ -59,7 +60,7 @@ TEST_CASE("named wrapper, skill addable", "[core][named_wrapper]") {
   REQUIRE(c.value() == 30);
 }
 
-TEST_CASE("named wrapper, skill subtractable", "[core][named_wrapper]") {
+TEST_CASE("named wrapper, skill subtractable", "[container][named_wrapper]") {
   using named_u32 = ht::named_wrapper<uint32_t, struct test_u32_tag,
                                       ht::named_wrapper_skills::subtractable>;
 
@@ -72,7 +73,7 @@ TEST_CASE("named wrapper, skill subtractable", "[core][named_wrapper]") {
   REQUIRE(c.value() == 10);
 }
 
-TEST_CASE("named wrapper, skill multiplicable", "[core][named_wrapper]") {
+TEST_CASE("named wrapper, skill multiplicable", "[container][named_wrapper]") {
   using named_u32 = ht::named_wrapper<uint32_t, struct test_u32_tag,
                                       ht::named_wrapper_skills::multiplicable>;
 
@@ -85,7 +86,7 @@ TEST_CASE("named wrapper, skill multiplicable", "[core][named_wrapper]") {
   REQUIRE(c.value() == 200);
 }
 
-TEST_CASE("named wrapper, skill nagatable", "[core][named_wrapper]") {
+TEST_CASE("named wrapper, skill nagatable", "[container][named_wrapper]") {
   using named_i32 = ht::named_wrapper<int32_t, struct test_32_tag,
                                       ht::named_wrapper_skills::negatable>;
 
@@ -98,7 +99,7 @@ TEST_CASE("named wrapper, skill nagatable", "[core][named_wrapper]") {
   REQUIRE(c.value() == -10);
 }
 
-TEST_CASE("named wrapper, skill hash", "[core][named_wrapper]") {
+TEST_CASE("named wrapper, skill hash", "[container][named_wrapper]") {
   using named_i32 = ht::named_wrapper<int32_t, struct test_32_tag,
                                       ht::named_wrapper_skills::hashable>;
 
