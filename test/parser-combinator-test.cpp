@@ -11,6 +11,7 @@
 #include "catch2/catch_all.hpp"
 #include "catch2/catch_test_macros.hpp"
 #include "ht/core/result.hpp"
+#include "ht/parser_combinator/impl/commons/combinator_many.hpp"
 #include "ht/parser_combinator/impl/commons/combinator_or.hpp"
 #include "ht/parser_combinator/impl/commons/combinator_plus.hpp"
 #include "ht/parser_combinator/impl/input_stream.hpp"
@@ -119,6 +120,32 @@ TEST_CASE("combinator or", "[parser_combinator]") {
     REQUIRE(s.unwrap().first == '1');
     REQUIRE(s.unwrap().second.current_column() == 2);
   }
+}
+
+TEST_CASE("combinator many", "[parser_combinator]") {
+  auto parser = ht::make_parser(
+      [](const ht::_parser_combinator_impl::input_stream &input)
+          -> ht::result<
+              std::pair<char, ht::_parser_combinator_impl::input_stream>,
+              void> {
+        if (!input.is_eof()) {
+          auto first_char = input.raw_input().front();
+          if (first_char == '0') {
+            return ht::ok(std::make_pair('0', input.consume(1)));
+          } else {
+            return ht::err();
+          }
+        }
+        return ht::err();
+      });
+
+  auto new_parser   = parser * 0;
+  std::string input = "000";
+
+  auto s = new_parser(ht::_parser_combinator_impl::input_stream{input});
+  REQUIRE(s.is_ok());
+  REQUIRE(s.unwrap().first.size() == 3);
+  REQUIRE(s.unwrap().second.current_column() == 4);
 }
 
 // vim: et sw=2 ts=2

@@ -8,7 +8,11 @@
 #pragma once  // NOLINT(build/header_guard)
 
 #include <tuple>
+
 namespace ht {
+
+template<typename T>
+struct inspect;
 
 template<typename T>
 inline constexpr bool is_tuple_v = false;

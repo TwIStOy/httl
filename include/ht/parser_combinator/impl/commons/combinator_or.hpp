@@ -53,9 +53,6 @@ R exec_impl(const _parser_combinator_impl::input_stream &input, P &&p,
 
 }  // namespace __detail
 
-template<typename T>
-struct inspect;
-
 template<typename... Ps>
   requires(is_parser_v<std::decay_t<Ps>> && ...) &&
           all_same<typename std::decay_t<Ps>::value_type...>
