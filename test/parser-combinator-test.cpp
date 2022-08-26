@@ -12,6 +12,7 @@
 #include "catch2/catch_test_macros.hpp"
 #include "ht/core/result.hpp"
 #include "ht/parser_combinator/impl/commons/combinator_many.hpp"
+#include "ht/parser_combinator/impl/commons/combinator_option.hpp"
 #include "ht/parser_combinator/impl/commons/combinator_or.hpp"
 #include "ht/parser_combinator/impl/commons/combinator_plus.hpp"
 #include "ht/parser_combinator/impl/input_stream.hpp"
@@ -146,6 +147,42 @@ TEST_CASE("combinator many", "[parser_combinator]") {
   REQUIRE(s.is_ok());
   REQUIRE(s.unwrap().first.size() == 3);
   REQUIRE(s.unwrap().second.current_column() == 4);
+}
+
+TEST_CASE("combinator optional", "[parser_combinator]") {
+  auto parser = ht::make_parser(
+      [](const ht::_parser_combinator_impl::input_stream &input)
+          -> ht::result<
+              std::pair<char, ht::_parser_combinator_impl::input_stream>,
+              void> {
+        if (!input.is_eof()) {
+          auto first_char = input.raw_input().front();
+          if (first_char == '0') {
+            return ht::ok(std::make_pair('0', input.consume(1)));
+          } else {
+            return ht::err();
+          }
+        }
+        return ht::err();
+      });
+
+  auto new_parser = ht::combinators::combinator_option(parser);
+
+  {
+    std::string input = "000";
+    auto s = new_parser(ht::_parser_combinator_impl::input_stream{input});
+    REQUIRE(s.is_ok());
+    REQUIRE(s.unwrap().first.has_value());
+    REQUIRE(s.unwrap().second.current_column() == 2);
+  }
+
+  {
+    std::string input = "100";
+    auto s = new_parser(ht::_parser_combinator_impl::input_stream{input});
+    REQUIRE(s.is_ok());
+    REQUIRE(!s.unwrap().first.has_value());
+    REQUIRE(s.unwrap().second.current_column() == 1);
+  }
 }
 
 // vim: et sw=2 ts=2
