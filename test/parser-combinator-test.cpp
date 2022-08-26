@@ -16,6 +16,7 @@
 #include "ht/parser_combinator/impl/commons/combinator_option.hpp"
 #include "ht/parser_combinator/impl/commons/combinator_or.hpp"
 #include "ht/parser_combinator/impl/commons/combinator_plus.hpp"
+#include "ht/parser_combinator/impl/commons/strings.hpp"
 #include "ht/parser_combinator/impl/input_stream.hpp"
 #include "ht/parser_combinator/impl/parser.hpp"
 
@@ -212,6 +213,26 @@ TEST_CASE("combinator converter", "[parser_combinator]") {
   REQUIRE(s.is_ok());
   REQUIRE(s.unwrap().first == '0');
   REQUIRE(s.unwrap().second.current_column() == 2);
+}
+
+TEST_CASE("combinator regex", "[parser_combinator]") {
+  auto parser = ht::combinators::make_regex_parser("1+2");
+
+  std::string input = "11123";
+  auto s = parser(ht::_parser_combinator_impl::input_stream{input});
+  REQUIRE(s.is_ok());
+  REQUIRE(s.unwrap().first == "1112");
+  REQUIRE(s.unwrap().second.current_column() == 5);
+}
+
+TEST_CASE("combinator string eq", "[parser_combinator]") {
+  auto parser = ht::combinators::make_string_eq_parser("1112");
+
+  std::string input = "11123";
+  auto s = parser(ht::_parser_combinator_impl::input_stream{input});
+  REQUIRE(s.is_ok());
+  REQUIRE(s.unwrap().first == "1112");
+  REQUIRE(s.unwrap().second.current_column() == 5);
 }
 
 // vim: et sw=2 ts=2
