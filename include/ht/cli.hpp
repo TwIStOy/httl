@@ -10,6 +10,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -109,8 +110,10 @@ class command_line_interpreter {
     }
     std::string help;
 
-    virtual result<std::string, std::string> invoke(
-        const std::vector<std::string> &args) = 0;
+    [[nodiscard]] virtual result<std::string, std::string> invoke(
+        const std::vector<std::string> &args) const = 0;
+
+    virtual ~command_base() = default;
   };
 
  private:
@@ -134,39 +137,50 @@ class command_line_interpreter {
     return f(type_convert<std::tuple_element_t<I, argument_t>>(args[I])...);
   }
 
- public:
   template<typename Func>
-  std::string register_command(Func &&func, std::string name,
-                               std::string help_msg) {
+  struct command final : public command_base {
     using sig = function_signature<Func>;
 
-    struct command final : command_base {
-      command(Func &&func, std::string help_msg)
-          : command_base(std::move(help_msg)), func(std::forward<Func>(func)) {
+    Func func;
+
+    ~command() override = default;
+
+    template<typename F>
+    command(F &&f, std::string help_msg)
+        : command_base(std::move(help_msg)), func(std::forward<F>(f)) {
+    }
+
+    [[nodiscard]] result<std::string, std::string> invoke(
+        const std::vector<std::string> &args) const final {
+      if (args.size() != std::tuple_size_v<typename sig::argument_t>) {
+        return err(fmt::format("argument number not match, expect: {}, but {}",
+                               std::tuple_size_v<typename sig::argument_t>,
+                               args.size()));
       }
 
-      std::decay_t<Func> func;
-      result<std::string, std::string> invoke(
-          const std::vector<std::string> &args) final {
-        if (args.size() != std::tuple_size_v<typename sig::argument_t>) {
-          return err(fmt::format(
-              "argument number not match, expect: {}, but {}",
-              std::tuple_size_v<typename sig::argument_t>, args.size()));
-        }
+      auto v = call_command<typename sig::argument_t>(
+          this->func,
+          std::make_index_sequence<
+              std::tuple_size_v<typename sig::argument_t>>{},
+          args);
 
-        auto v = call_command<typename sig::argument_t>(
-            this->func,
-            std::make_index_sequence<
-                std::tuple_size_v<typename sig::argument_t>>{},
-            args);
+      return ok(ht::stringify(v));
+    }
+  };
 
-        return ok(ht::stringify(v));
-      }
-    };
+ public:
+  inline uint32_t commands_count() const {
+    return commands_.size();
+  }
 
-    commands_.emplace(std::move(name),
-                      std::make_unique<command>(std::forward<Func>(func),
-                                                std::move(help_msg)));
+  template<typename Func>
+  void register_command(Func &&func, std::string name, std::string help_msg) {
+    using cmd_t = command<std::decay_t<Func>>;
+
+    auto c = std::unique_ptr<cmd_t>(
+        new cmd_t(std::forward<Func>(func), std::move(help_msg)));
+
+    commands_.insert(std::make_pair(std::move(name), std::move(c)));
   }
 
   result<std::string, std::string> eval(const std::string &text) {

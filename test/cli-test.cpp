@@ -61,14 +61,13 @@ TEST_CASE("cli parse, 03", "[cli]") {
 
 TEST_CASE("cli reg, 01", "[cli]") {
   ht::command_line_interpreter interp;
-  cli_interp_stealer stealer(interp);
   interp.register_command(
       [](uint32_t a, uint32_t b) {
         return a + b;
       },
-      "add", "add");
+      "add", "method add");
 
-  REQUIRE(stealer.commands_.size() == 1);
+  REQUIRE(interp.commands_count() == 1);
 }
 
 TEST_CASE("cli eval", "[cli]") {
