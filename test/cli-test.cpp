@@ -69,11 +69,20 @@ TEST_CASE("cli reg, 01", "[cli]") {
       "add", "add");
 
   REQUIRE(stealer.commands_.size() == 1);
+}
 
-  /*
-   * auto r =
-   * interp.eval("add 1 2");
-   *
-   * REQUIRE(
-   */
+TEST_CASE("cli eval", "[cli]") {
+  ht::command_line_interpreter interp;
+  cli_interp_stealer stealer(interp);
+  interp.register_command(
+      [](uint32_t a, uint32_t b) {
+        return a + b;
+      },
+      "add", "add");
+
+  REQUIRE(stealer.commands_.size() == 1);
+
+  auto r = interp.eval("add 1 2");
+  REQUIRE(r.is_ok());
+  REQUIRE(r.unwrap() == "3");
 }
