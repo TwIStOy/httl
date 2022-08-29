@@ -12,6 +12,8 @@
 #include "ht/parser_combinator/impl/commons/combinator_option.hpp"
 #include "ht/parser_combinator/impl/commons/combinator_or.hpp"
 #include "ht/parser_combinator/impl/commons/combinator_plus.hpp"
+#include "ht/parser_combinator/impl/commons/char_predict.hpp"
+#include "ht/parser_combinator/impl/commons/strings.hpp"
 #include "ht/parser_combinator/impl/input_stream.hpp"
 #include "ht/parser_combinator/impl/parser.hpp"
 

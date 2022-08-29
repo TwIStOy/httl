@@ -77,7 +77,7 @@ namespace ht::_parser_combinator_impl {
 
 template<typename T, typename U>
   requires is_parser_v<std::decay_t<T>> && is_parser_v<std::decay_t<U>>
-auto operator|(T &&p0, U &&p1) {
+auto operator||(T &&p0, U &&p1) {
   return combinators::combinator_or(std::forward<T>(p0), std::forward<U>(p1));
 }
 

@@ -45,7 +45,7 @@ auto combinator_plus(Ps &&...ps) {
       std::tuple<typename std::decay_t<Ps>::result_as_tuple_t...>;
 
   return make_parser(
-      [ps = std::forward_as_tuple(std::forward<Ps>(ps)...)](
+      [ps = std::tuple<Ps...>(std::forward<Ps>(ps)...)](
           const _parser_combinator_impl::input_stream &_input) -> result_t {
         _parser_combinator_impl::input_stream input = _input;
 
