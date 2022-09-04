@@ -18,4 +18,5 @@ add_httl_test(stringify-test)
 add_httl_test(named-wrapper-test)
 add_httl_test(parser-combinator-test)
 add_httl_test(cli-test)
+add_httl_test(memory-view-test)
 
