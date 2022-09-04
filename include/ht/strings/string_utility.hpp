@@ -15,6 +15,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <vector>
 
 #include "ht/core/cpp_feature.h"
 #include "ht/strings/stringify.hpp"
@@ -65,6 +66,23 @@ std::string str_join(const C &container, std::string_view sep, F &&f) {
     oss << f(*it);
   }
   return oss.str();
+}
+
+template<template<typename> class C = std::vector>
+C<std::string> str_split(const std::string &input, char sep) {
+  C<std::string> res;
+  std::istringstream ss(input);
+  std::string item;
+
+  while (std::getline(ss, item, sep)) {
+    if (res.empty() && item.empty()) {
+      continue;
+    }
+
+    res.push_back(item);
+  }
+
+  return res;
 }
 
 }  // namespace ht
