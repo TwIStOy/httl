@@ -90,17 +90,17 @@ struct sync_wait_promise<void> {
     return handle_t::from_promise(*this);
   }
 
-  auto initial_suspend() noexcept {
+  static auto initial_suspend() noexcept {
     return std::suspend_always{};
   }
 
-  auto final_suspend() noexcept {
+  static auto final_suspend() noexcept {
     struct awaiter {
-      [[nodiscard]] bool await_ready() const noexcept {
+      [[nodiscard]] static bool await_ready() noexcept {
         return false;
       }
 
-      void await_suspend(handle_t co) const noexcept {
+      static void await_suspend(handle_t co) noexcept {
         co.promise().event_->set();
       }
 
@@ -117,7 +117,7 @@ struct sync_wait_promise<void> {
     exception_ = std::current_exception();
   }
 
-  void result() {
+  void result() const {
     if (exception_) {
       std::rethrow_exception(exception_);
     }
@@ -137,7 +137,7 @@ struct sync_wait_task {
   explicit sync_wait_task(handle_t coro) noexcept : coro_(coro) {
   }
 
-  explicit sync_wait_task(sync_wait_task &&rhs) noexcept
+  sync_wait_task(sync_wait_task &&rhs) noexcept
       : coro_(std::exchange(rhs.coro_, handle_t{})) {
   }
 
