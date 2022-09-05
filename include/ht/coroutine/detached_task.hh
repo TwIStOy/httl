@@ -53,7 +53,7 @@ class detached_task_promise {
     void await_resume() const noexcept {
     }
 
-    [[nodiscard]] bool await_ready() const noexcept {
+    [[nodiscard]] static bool await_ready() noexcept {
       return false;
     }
 
@@ -67,7 +67,7 @@ class detached_task_promise {
 
   detached_task get_return_object();
 
-  std::suspend_never initial_suspend() noexcept {
+  static std::suspend_never initial_suspend() noexcept {
     return {};
   }
 
@@ -76,7 +76,7 @@ class detached_task_promise {
   void return_void() const noexcept {
   }
 
-  void unhandled_exception() const noexcept;
+  static void unhandled_exception() noexcept;
 
  private:
   std::shared_ptr<detached_task_handle> handle_;
@@ -106,7 +106,7 @@ detached_task_promise::final_suspend() noexcept {
   return final_awaiter{handle_};
 }
 
-inline void detached_task_promise::unhandled_exception() const noexcept {
+inline void detached_task_promise::unhandled_exception() noexcept {
   std::terminate();
 }
 
@@ -118,4 +118,5 @@ inline detached_task::detached_task(
 inline bool detached_task::cancel() noexcept {
   return handle_->finish();
 }
+
 }  // namespace ht::coro

@@ -12,6 +12,8 @@
 #include <type_traits>
 #include <utility>
 
+#include "ht/core/box.hpp"
+
 namespace ht::coro {
 
 template<typename T>
@@ -23,7 +25,7 @@ struct __task_promise_base {  // {{{
   std::coroutine_handle<> coro_;
 
   struct final_awaiter {  // {{{
-    [[nodiscard]] inline constexpr bool await_ready() const noexcept {
+    [[nodiscard]] static inline constexpr bool await_ready() noexcept {
       return false;
     }
 
@@ -39,11 +41,13 @@ struct __task_promise_base {  // {{{
 
   __task_promise_base() = default;
 
-  [[nodiscard]] inline constexpr auto initial_suspend() const noexcept {
+  virtual ~__task_promise_base() = default;
+
+  [[nodiscard]] static inline constexpr auto initial_suspend() noexcept {
     return std::suspend_always{};
   }
 
-  [[nodiscard]] inline constexpr auto final_suspend() const noexcept {
+  [[nodiscard]] static inline constexpr auto final_suspend() noexcept {
     return final_awaiter{};
   }
 
@@ -57,37 +61,58 @@ class task_promise final : public __task_promise_base {  // {{{
  public:
   task_promise() noexcept = default;
 
+  ~task_promise() override {
+    switch (state_) {
+      case state::kNothing:
+        break;
+      case state::kException:
+        ht::destruct_union_member(&storage_.exception);
+        break;
+      case state::kValue:
+        ht::destruct_union_member(&storage_.value);
+        break;
+    }
+  }
+
   task<T> get_return_object() noexcept;
 
   void unhandled_exception() noexcept {
-    exception_ = std::current_exception();
+    state_ = state::kException;
+    ht::construct_union_member(&storage_.exception, std::current_exception());
   }
 
   template<typename U>
     requires std::convertible_to<U &&, T>
   void return_value(U &&value) noexcept(
       std::is_nothrow_convertible_v<U &&, T>) {
-    data_ = T(std::forward<U &&>(value));
+    state_ = state::kValue;
+    ht::construct_union_member(&storage_.value, std::forward<U &&>(value));
   }
 
   T &result() & {
-    if (exception_) {
-      std::rethrow_exception(exception_);
+    if (state_ == state::kException) {
+      std::rethrow_exception(storage_.exception.get());
     }
-    return data_.value();
+    return storage_.value.get();
   }
 
   T &&result() && {
-    if (exception_) {
-      std::rethrow_exception(exception_);
+    if (state_ == state::kException) {
+      std::rethrow_exception(storage_.exception.get());
     }
-
-    return std::move(data_.value());
+    return std::move(storage_.value).get();
   }
 
  private:
-  std::exception_ptr exception_;
-  std::optional<T> data_;
+  enum class state {
+    kNothing,
+    kException,
+    kValue,
+  } state_{state::kNothing};
+  union {
+    ht::box<T> value;
+    ht::box<std::exception_ptr> exception;
+  } storage_{};
 };  // }}}
 
 template<>
