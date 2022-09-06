@@ -11,51 +11,53 @@
 
 #include "ht/core/cpp_feature.h"
 #include "ht/core/reflect/macros.h"
+#include "ht/strings/stringify.hpp"
 
 namespace ht {
 
-struct Socket {
-  Socket(int _fd, void *_io_context) : fd(_fd), io_context(_io_context) {
+struct socket {
+  HT_ALWAYS_INLINE socket(int _fd, void *_io_context)
+      : fd_(_fd), io_context_(_io_context) {
   }
 
-  int fd{-1};
-  void *io_context{nullptr};
+  socket(const socket &) = delete;
 
-  HT_REFL_INS_DECL(Socket, fd, io_context);
+  socket(socket &&rhs) noexcept : fd_(rhs.fd_), io_context_(rhs.io_context_) {
+    rhs.fd_ = -1;
+  }
+
+  HT_ALWAYS_INLINE ~socket() {
+    free();
+  }
+
+  friend auto tag_invoke(ht::tag_t<ht::debug_stringify>, const socket &skt,
+                         uint16_t, uint16_t) {
+    return fmt::format("Socket{{fd = {}, io_context = {:p}}}", skt.fd_,
+                       skt.io_context_);
+  }
+
+  [[nodiscard]] HT_ALWAYS_INLINE int fd() const {
+    return fd_;
+  }
+
+  [[nodiscard]] HT_ALWAYS_INLINE void *io_context() const {
+    return io_context_;
+  }
 
  private:
   void free();
+
+  int fd_{-1};
+  void *io_context_{nullptr};
 };
 
-HT_ALWAYS_INLINE void Socket::free() {
-  if (fd > 0) {
-    ::close(fd);
+HT_ALWAYS_INLINE void socket::free() {
+  if (fd_ > 0) {
+    ::close(fd_);
   }
-  fd = -1;
+  fd_ = -1;
 }
 
 }  // namespace ht
-
-namespace fmt {
-
-template<>
-struct formatter<ht::Socket> {
-  using ValueType = ht::Socket;
-  template<typename ParseContext>
-  auto parse(ParseContext &ctx) ->  // NOLINT(runtime/references)
-      typename ParseContext::iterator {
-    return ctx.begin();
-  }
-
-  template<typename FormatContext>
-  auto format(const ValueType &v,
-              FormatContext &ctx)  // NOLINT(runtime/references)
-      -> decltype(ctx.out()) {
-    return format_to(ctx.out(), "Socket{{fd = {}, io_context = {:p}}}", v.fd,
-                     v.io_context);
-  }
-};
-
-}  // namespace fmt
 
 // vim: et sw=2 ts=2

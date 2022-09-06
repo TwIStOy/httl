@@ -79,30 +79,3 @@ TEST_CASE("test reflect struct display", "[reflect][compile_time]") {
   std::cout << ht::stringify(t) << std::endl;
 }
 
-TEST_CASE("test reflect struct: Socket", "[reflect][compile_time]") {
-  using TestType = ht::Socket;
-  REQUIRE(ht::has_refl_v<TestType>);
-  REQUIRE(!ht::has_refl_v<uint32_t>);
-
-  auto info = ht::refl_info<TestType>{};
-
-  REQUIRE(info.get_name() == "Socket");
-  REQUIRE(info.num_properties() == 2);
-  REQUIRE(info.property_name().size() == 2);
-
-  REQUIRE(info.property_name().at(0) == "fd");
-  REQUIRE(info.property_name().at(1) == "io_context");
-
-  REQUIRE(std::is_same_v<
-          std::tuple_element_t<0, ht::refl_info<TestType>::property_type>,
-          int>);
-  REQUIRE(std::is_same_v<
-          std::tuple_element_t<1, ht::refl_info<TestType>::property_type>,
-          void *>);
-
-  TestType test{-1, nullptr};
-  test.fd               = 0;
-  ht::refl_ref<0>(test) = 1;
-
-  REQUIRE(test.fd == 1);
-}
