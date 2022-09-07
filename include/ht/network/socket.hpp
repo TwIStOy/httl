@@ -30,8 +30,9 @@ struct socket {
     free();
   }
 
-  friend auto tag_invoke(ht::tag_t<ht::debug_stringify>, const socket &skt,
-                         uint16_t, uint16_t) {
+  HT_ALWAYS_INLINE friend auto tag_invoke(ht::tag_t<ht::debug_stringify>,
+                                          const socket &skt, uint16_t,
+                                          uint16_t) {
     return fmt::format("Socket{{fd = {}, io_context = {:p}}}", skt.fd_,
                        skt.io_context_);
   }
