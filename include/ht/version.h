@@ -32,7 +32,7 @@
 
 #define HTTL_VERSION_MAJOR 0
 #define HTTL_VERSION_MINOR 1
-#define HTTL_VERSION_PATCH 0
+#define HTTL_VERSION_PATCH 3
 
 #define _MK_STR(x)       #x
 #define _MK_VER(x, y, z) _MK_STR(x) "." _MK_STR(y) "." _MK_STR(z)
