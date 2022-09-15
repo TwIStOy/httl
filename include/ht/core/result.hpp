@@ -52,6 +52,8 @@ struct value_result_base {
   box<value_type> value_;
 };
 
+enum class _result_state { empty, value, error };
+
 }  // namespace __impl
 
 template<typename VT, typename ET>

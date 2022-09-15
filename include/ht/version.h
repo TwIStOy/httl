@@ -28,7 +28,7 @@
 // source code, you may redistribute such embedded portions in such object form
 // without including the above copyright and permission notices.
 
-#define HTTL_LAST_UPDATED 20220907
+#define HTTL_LAST_UPDATED 20220916
 
 #define HTTL_VERSION_MAJOR 0
 #define HTTL_VERSION_MINOR 1
