@@ -105,14 +105,14 @@ struct result {
     switch (state_) {
       case _state::value:
         if constexpr (!std::is_void_v<value_type>) {
-          construct_union_member(&value_, rhs.unwrap());
+          construct_union_member(&value_, rhs.value_.get());
         } else {
           construct_union_member(&value_);
         }
         break;
       case _state::error:
         if constexpr (!std::is_void_v<error_type>) {
-          construct_union_member(&error_, rhs.unwrap_err());
+          construct_union_member(&error_, rhs.error_.get());
         } else {
           construct_union_member(&error_);
         }
@@ -128,14 +128,14 @@ struct result {
     switch (state_) {
       case _state::value:
         if constexpr (!std::is_void_v<value_type>) {
-          construct_union_member(&value_, std::move(rhs).unwrap());
+          construct_union_member(&value_, std::move(rhs.value_).get());
         } else {
           construct_union_member(&value_);
         }
         break;
       case _state::error:
         if constexpr (!std::is_void_v<error_type>) {
-          construct_union_member(&error_, std::move(rhs).unwrap_err());
+          construct_union_member(&error_, std::move(rhs.error_).get());
         } else {
           construct_union_member(&error_);
         }
