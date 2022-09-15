@@ -10,6 +10,7 @@
 #include <fmt/format.h>
 
 #include <concepts>
+#include <iostream>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -58,6 +59,9 @@ struct result {
   using value_type = VT;
   using error_type = ET;
 
+  template<typename U, typename V>
+  friend struct result;
+
  private:
   enum class _state { empty, value, error };
   _state state_{_state::empty};
@@ -65,6 +69,10 @@ struct result {
     box<value_type> value_;
     box<error_type> error_;
   };
+  static constexpr auto box_size = sizeof(box<value_type>) >
+                                           sizeof(box<error_type>)
+                                       ? sizeof(box<value_type>)
+                                       : sizeof(box<error_type>);
 
   void reset() {
     auto old = std::exchange(state_, _state::empty);
@@ -79,6 +87,87 @@ struct result {
         break;
     }
   }
+
+  template<typename U = value_type, typename V = error_type>
+    requires std::is_trivially_copy_constructible_v<U> &&
+             std::is_trivially_copy_constructible_v<V>
+  result(const result &rhs, int = 0) : state_(rhs.state_) {  // NOLINT
+    memcpy(&value_, &rhs.value_, box_size);
+  }
+
+  template<typename U = value_type, typename V = error_type>
+    requires(std::copy_constructible<U> && std::copy_constructible<V>) &&
+            (!std::is_trivially_copy_constructible_v<U> ||
+             !std::is_trivially_copy_constructible_v<V>)
+  result(const result &rhs, int = 0) : state_(rhs.state_) {  // NOLINT
+    switch (state_) {
+      case _state::value:
+        if constexpr (!std::is_void_v<value_type>) {
+          construct_union_member(&value_, rhs.unwrap());
+        } else {
+          construct_union_member(&value_);
+        }
+        break;
+      case _state::error:
+        if constexpr (!std::is_void_v<error_type>) {
+          construct_union_member(&error_, rhs.unwrap_err());
+        } else {
+          construct_union_member(&error_);
+        }
+        break;
+      case _state::empty:
+        break;
+    }
+  }
+
+  template<typename U = value_type, typename V = error_type>
+    requires std::move_constructible<U> && std::move_constructible<V>
+  result(result &&rhs, int = 0) noexcept : state_(rhs.state_) {  // NOLINT
+    switch (state_) {
+      case _state::value:
+        if constexpr (!std::is_void_v<value_type>) {
+          construct_union_member(&value_, std::move(rhs).unwrap());
+        } else {
+          construct_union_member(&value_);
+        }
+        break;
+      case _state::error:
+        if constexpr (!std::is_void_v<error_type>) {
+          construct_union_member(&error_, std::move(rhs).unwrap_err());
+        } else {
+          construct_union_member(&error_);
+        }
+        break;
+      case _state::empty:
+        break;
+    }
+  }
+
+  template<typename F, bool>
+  struct map_value_t;
+
+  template<typename F>
+  struct map_value_t<F, true> {
+    using type = std::invoke_result_t<F>;
+  };
+
+  template<typename F>
+  struct map_value_t<F, false> {
+    using type = std::invoke_result_t<F, value_type &&>;
+  };
+
+  template<typename F, bool>
+  struct map_error_t;
+
+  template<typename F>
+  struct map_error_t<F, true> {
+    using type = std::invoke_result_t<F>;
+  };
+
+  template<typename F>
+  struct map_error_t<F, false> {
+    using type = std::invoke_result_t<F, error_type &&>;
+  };
 
  public:
   result() = default;
@@ -141,6 +230,12 @@ struct result {
     set(std::move(v));
   }
 
+  result(const result &rhs) : result(rhs, 0) {
+  }
+
+  result(result &&rhs) noexcept : result(std::move(rhs), 0) {
+  }
+
   template<typename T, typename U>
     requires std::convertible_to<U, value_type> &&
              (std::same_as<T, __impl::value_tag> ||
@@ -148,6 +243,155 @@ struct result {
   result &operator=(__impl::temp_wrapper<T, U> v) {
     set(std::move(v));
     return *this;
+  }
+
+  result &operator=(const result &rhs) {
+    static_assert(std::copy_constructible<value_type> ||
+                  (std::is_default_constructible_v<value_type> &&
+                   std::is_copy_assignable_v<value_type>));
+    static_assert(std::copy_constructible<error_type> ||
+                  (std::is_default_constructible_v<error_type> &&
+                   std::is_copy_assignable_v<error_type>));
+
+    reset();
+
+    state_ = rhs.state_;
+
+    if (state_ == _state::value) {
+      if constexpr (std::is_default_constructible_v<value_type> &&
+                    std::is_copy_assignable_v<value_type>) {
+        construct_union_member(&value_);
+
+        if constexpr (!std::is_void_v<value_type>) {
+          value_.get() = rhs.value_.get();
+        }
+      } else if constexpr (std::copy_constructible<value_type>) {
+        if constexpr (!std::is_void_v<value_type>) {
+          construct_union_member(&value_, rhs.value_.get());
+        } else {
+          construct_union_member(&value_);
+        }
+      }
+    } else if (state_ == _state::error) {
+      if constexpr (std::is_default_constructible_v<error_type> &&
+                    std::is_copy_assignable_v<error_type>) {
+        construct_union_member(&error_);
+
+        if constexpr (!std::is_void_v<error_type>) {
+          error_.get() = rhs.error_.get();
+        }
+      } else if constexpr (std::copy_constructible<error_type>) {
+        if constexpr (!std::is_void_v<error_type>) {
+          construct_union_member(&error_, rhs.error_.get());
+        } else {
+          construct_union_member(&error_);
+        }
+      }
+    }
+
+    return *this;
+  }
+
+  result &operator=(result &&rhs) noexcept {
+    static_assert(std::move_constructible<value_type> ||
+                  (std::is_default_constructible_v<value_type> &&
+                   std::is_move_assignable_v<value_type>));
+    static_assert(std::move_constructible<error_type> ||
+                  (std::is_default_constructible_v<error_type> &&
+                   std::is_move_assignable_v<error_type>));
+
+    reset();
+
+    state_ = rhs.state_;
+
+    if (state_ == _state::value) {
+      if constexpr (std::is_default_constructible_v<value_type> &&
+                    std::is_move_assignable_v<value_type>) {
+        construct_union_member(&value_);
+
+        if constexpr (!std::is_void_v<value_type>) {
+          value_.get() = std::move(rhs.value_).get();
+        }
+      } else if constexpr (std::move_constructible<value_type>) {
+        if constexpr (!std::is_void_v<value_type>) {
+          construct_union_member(&value_, std::move(rhs.value_).get());
+        } else {
+          construct_union_member(&value_);
+        }
+      }
+    } else if (state_ == _state::error) {
+      if constexpr (std::is_default_constructible_v<error_type> &&
+                    std::is_move_assignable_v<error_type>) {
+        construct_union_member(&error_);
+
+        if constexpr (!std::is_void_v<error_type>) {
+          error_.get() = std::move(rhs.error_).get();
+        }
+      } else if constexpr (std::move_constructible<error_type>) {
+        if constexpr (!std::is_void_v<error_type>) {
+          construct_union_member(&error_, std::move(rhs.error_).get());
+        } else {
+          construct_union_member(&error_);
+        }
+      }
+    }
+
+    return *this;
+  }
+
+  auto operator->() & {
+    return &unwrap();
+  }
+
+  template<typename F, typename new_value_type = typename map_value_t<
+                           F, std::is_void_v<value_type>>::type>
+  result<new_value_type, error_type> map(F func) && {
+    result<new_value_type, error_type> res;
+    res.state_ = static_cast<decltype(res.state_)>(state_);
+
+    switch (state_) {
+      case _state::value:
+        if constexpr (std::is_void_v<value_type>) {
+          construct_union_member(&res.value_, std::forward<F>(func)());
+        } else {
+          construct_union_member(
+              &res.value_, std::forward<F>(func)(std::move(value_).get()));
+        }
+        break;
+      case _state::error:
+        construct_union_member(&res.error_, std::move(error_).get());
+        break;
+      case _state::empty:
+        break;
+    }
+
+    return res;
+  }
+
+  template<typename F, typename new_error_type = typename map_error_t<
+                           F, std::is_void_v<error_type>>::type>
+  result<value_type, new_error_type> map_err(F func) && {
+    result<value_type, new_error_type> res;
+    res.state_ = static_cast<decltype(res.state_)>(state_);
+
+    switch (state_) {
+      case _state::value:
+        construct_union_member(&res.value_, std::move(value_).get());
+
+        break;
+      case _state::error:
+        if constexpr (std::is_void_v<value_type>) {
+          construct_union_member(&res.error_, std::forward<F>(func)());
+        } else {
+          construct_union_member(
+              &res.error_, std::forward<F>(func)(std::move(error_).get()));
+        }
+        break;
+      case _state::empty:
+        break;
+    }
+
+    return res;
   }
 
   ~result() {

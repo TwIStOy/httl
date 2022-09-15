@@ -51,6 +51,10 @@ class box {
     return reinterpret_cast<T *>(std::addressof(storage_));
   }
 
+  const T *ptr() const {
+    return reinterpret_cast<const T *>(std::addressof(storage_));
+  }
+
   reference get() &noexcept {
     return *ptr();
   }
