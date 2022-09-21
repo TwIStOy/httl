@@ -12,7 +12,7 @@
 
 #include "catch2/catch_all.hpp"
 #include "ht/core/type_utils.hpp"
-#include "ht/memory/memory_view.hh"
+#include "ht/memory/memory_view.hpp"
 
 struct POD_A {  // 8
   uint32_t f1;

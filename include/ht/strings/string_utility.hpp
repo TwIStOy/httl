@@ -7,6 +7,7 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <concepts>
 #include <cstring>
 #include <functional>
 #include <iterator>
@@ -22,6 +23,9 @@
 
 namespace ht {
 
+/**
+ * Remove leading spaces from given string.
+ */
 inline std::string_view remove_leading_spaces(std::string_view str) {
   if (str.length() && std::isspace(str[0])) {
     uint32_t first_nonwhitespace_index = 0;
@@ -36,8 +40,11 @@ inline std::string_view remove_leading_spaces(std::string_view str) {
   return str;
 }
 
-template<typename C>
-std::string str_join(const C &container, std::string_view sep) {
+/**
+ * Joins elements of a range with separator into a single string.
+ */
+template<std::ranges::range Rng>
+std::string str_join(const Rng &container, std::string_view sep) {
   auto end = std::ranges::end(container);
   std::ostringstream oss;
   bool first = true;
@@ -52,7 +59,11 @@ std::string str_join(const C &container, std::string_view sep) {
   return oss.str();
 }
 
-template<typename C, typename F>
+/**
+ * Joins elements of a range with separator into a single string.
+ */
+template<std::ranges::range C, typename F>
+  requires std::invocable<F, std::ranges::range_value_t<C>>
 std::string str_join(const C &container, std::string_view sep, F &&f) {
   auto end = std::ranges::end(container);
   std::ostringstream oss;
@@ -68,21 +79,31 @@ std::string str_join(const C &container, std::string_view sep, F &&f) {
   return oss.str();
 }
 
+/**
+ * Extract parts of strings that are separated by any of the characters in sep.
+ */
 template<template<typename> class C = std::vector>
-C<std::string> str_split(const std::string &input, char sep) {
-  C<std::string> res;
-  std::istringstream ss(input);
-  std::string item;
+C<std::string> str_split(std::string_view input, std::string_view sep) {
+  C<std::string> tokens;
+  std::string_view::size_type tokend = 0;
 
-  while (std::getline(ss, item, sep)) {
-    if (res.empty() && item.empty()) {
-      continue;
+  do {
+    auto tokstart = input.find_first_not_of(sep, tokend);
+    if (tokstart == std::string_view::npos) {
+      break;  // no more tokens
     }
+    tokend = input.find_first_of(sep, tokstart);
+    if (tokend == std::string_view::npos) {
+      tokens.emplace_back(input.substr(tokstart));
+    } else {
+      tokens.emplace_back(input.substr(tokstart, tokend - tokstart));
+    }
+  } while (tokend != std::string_view::npos);
 
-    res.push_back(item);
+  if (tokens.empty()) {
+    tokens.emplace_back();
   }
-
-  return res;
+  return tokens;
 }
 
 }  // namespace ht
