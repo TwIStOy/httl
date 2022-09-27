@@ -28,16 +28,15 @@
 // source code, you may redistribute such embedded portions in such object form
 // without including the above copyright and permission notices.
 
-#define HTTL_LAST_UPDATED 20220922
+#define HTTL_LAST_UPDATED 20220927
 
 #define HTTL_VERSION_MAJOR 0
 #define HTTL_VERSION_MINOR 1
-#define HTTL_VERSION_PATCH 0
+#define HTTL_VERSION_PATCH 4
 
 #define _MK_STR(x)       #x
 #define _MK_VER(x, y, z) _MK_STR(x) "." _MK_STR(y) "." _MK_STR(z)
 
 #define HTTL_VERSION \
   _MK_VER(HTTL_VERSION_MAJOR, HTTL_VERSION_MINOR, HTTL_VERSION_PATCH)
-
 
