@@ -9,9 +9,9 @@
 
 #include <fmt/format.h>
 
-#include "ht/core/cpp_feature.h"
-#include "ht/core/reflect/macros.h"
-#include "ht/strings/stringify.hpp"
+#include <ht/core/cpp_feature.h>
+#include <ht/core/reflect/macros.h>
+#include <ht/strings/stringify.hpp>
 
 namespace ht {
 
@@ -20,9 +20,9 @@ struct socket {
       : fd_(_fd), io_context_(_io_context) {
   }
 
-  socket(const socket &) = delete;
+  socket(const socket&) = delete;
 
-  socket(socket &&rhs) noexcept : fd_(rhs.fd_), io_context_(rhs.io_context_) {
+  socket(socket&& rhs) noexcept : fd_(rhs.fd_), io_context_(rhs.io_context_) {
     rhs.fd_ = -1;
   }
 
@@ -31,7 +31,7 @@ struct socket {
   }
 
   HT_ALWAYS_INLINE friend auto tag_invoke(ht::tag_t<ht::debug_stringify>,
-                                          const socket &skt, uint16_t,
+                                          const socket& skt, uint16_t,
                                           uint16_t) {
     return fmt::format("Socket{{fd = {}, io_context = {:p}}}", skt.fd_,
                        skt.io_context_);

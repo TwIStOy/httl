@@ -7,9 +7,9 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include "ht/macro/detail/compiler.h"
-#include "ht/macro/detail/diagnostic.h"
-#include "ht/macro/detail/warning.h"
+#include <ht/macro/detail/compiler.h>
+#include <ht/macro/detail/diagnostic.h>
+#include <ht/macro/detail/warning.h>
 
 #if defined(IGNORE_DEPRCATED_START)
 #undef IGNORE_DEPRCATED_START

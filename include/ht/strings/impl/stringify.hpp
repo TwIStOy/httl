@@ -20,8 +20,8 @@ struct __indent {
   uint16_t level;
 };
 
-static inline std::ostream &operator<<(std::ostream &oss,
-                                       const __indent &settings) {
+static inline std::ostream& operator<<(std::ostream& oss,
+                                       const __indent& settings) {
   if (settings.indent < 0) {
     return oss;
   }
@@ -42,7 +42,7 @@ namespace _tag_impl {
 struct stringify_fn {
   template<typename T, bool noexcept_ = nothrow_tag_invocable_v<
                            stringify_fn, T, uint16_t, int16_t>>
-  auto operator()(T &&value, int16_t indent = -1) const noexcept(noexcept_) {
+  auto operator()(T&& value, int16_t indent = -1) const noexcept(noexcept_) {
     if constexpr (ht::tag_invocable<stringify_fn, T, uint16_t, int16_t>) {
       return ht::tag_invoke(*this, std::forward<T>(value),
                             static_cast<uint16_t>(0), indent);
@@ -55,7 +55,7 @@ struct stringify_fn {
 
   template<typename T, bool noexcept_ = nothrow_tag_invocable_v<
                            stringify_fn, T, uint16_t, int16_t>>
-  auto operator()(T &&value, uint16_t level, int16_t indent) const
+  auto operator()(T&& value, uint16_t level, int16_t indent) const
       noexcept(noexcept_) {
     if constexpr (ht::tag_invocable<stringify_fn, T, uint16_t, int16_t>) {
       return ht::tag_invoke(*this, std::forward<T>(value), level, indent);
@@ -70,7 +70,7 @@ struct stringify_fn {
 struct debug_stringify_fn {
   template<typename T, bool noexcept_ = nothrow_tag_invocable_v<
                            debug_stringify_fn, T, uint16_t, int16_t>>
-  auto operator()(T &&value, int16_t indent = -1) const noexcept(noexcept_) {
+  auto operator()(T&& value, int16_t indent = -1) const noexcept(noexcept_) {
     std::ostringstream oss;
     oss << "<anoymous>: " << demangle<T>() << " = "
         << ht::tag_invoke(*this, std::forward<T>(value),
@@ -80,7 +80,7 @@ struct debug_stringify_fn {
 
   template<typename T, bool noexcept_ = nothrow_tag_invocable_v<
                            debug_stringify_fn, T, uint16_t, int16_t>>
-  auto operator()(T &&value, uint16_t level, int16_t indent) const
+  auto operator()(T&& value, uint16_t level, int16_t indent) const
       noexcept(noexcept_) {
     std::ostringstream oss;
     if (level == 0) {

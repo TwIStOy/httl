@@ -14,9 +14,9 @@
 #include <sstream>
 #include <utility>
 
-#include "ht/container/impl/avl_tree_base.hpp"
-#include "ht/container/impl/avl_tree_iterator.hpp"
-#include "ht/strings/stringify.hpp"
+#include <ht/container/impl/avl_tree_base.hpp>
+#include <ht/container/impl/avl_tree_iterator.hpp>
+#include <ht/strings/stringify.hpp>
 
 namespace ht {
 
@@ -31,8 +31,8 @@ class AVLTree {
   using difference_type = std::ptrdiff_t;
   using key_compare     = Compare;
   using allocator_type  = Allocator;
-  using reference       = value_type &;
-  using const_reference = const value_type &;
+  using reference       = value_type&;
+  using const_reference = const value_type&;
   using pointer         = typename std::allocator_traits<Allocator>::pointer;
   using const_pointer =
       typename std::allocator_traits<Allocator>::const_pointer;
@@ -49,8 +49,8 @@ class AVLTree {
     using first_argument_type  = value_type;
     using second_argument_type = value_type;
 
-    result_type operator()(const value_type &lhs,
-                           const value_type &rhs) const noexcept {
+    result_type operator()(const value_type& lhs,
+                           const value_type& rhs) const noexcept {
       return lhs.first < rhs.first;
     }
   };
@@ -66,18 +66,18 @@ class AVLTree {
                typename ForwardIterator::value_type, value_type>>>
   AVLTree(ForwardIterator begin, ForwardIterator end);
 
-  iterator find(const key_type &key) {
+  iterator find(const key_type& key) {
     return iterator(find_node(key));
   }
 
-  std::pair<iterator, bool> insert(value_type &&data) {
+  std::pair<iterator, bool> insert(value_type&& data) {
     auto position = &__base.__root;
 
     __avl_impl::__avl_tree_node *parent = nullptr;
 
     while (*position) {
       parent    = *position;
-      auto &now = reinterpret_cast<node_type *>(parent)->_value->first;
+      auto& now = reinterpret_cast<node_type *>(parent)->_value->first;
 
       if (data.first < now) {
         position = &parent->__left;
@@ -111,12 +111,12 @@ class AVLTree {
     return {iterator(*position), true};
   }
 
-  std::pair<iterator, bool> insert(const value_type &data) {
+  std::pair<iterator, bool> insert(const value_type& data) {
     return insert(value_type{data});
   }
 
   template<class P>
-  std::pair<iterator, bool> insert(P &&value) {
+  std::pair<iterator, bool> insert(P&& value) {
     return insert(value_type{std::forward<P>(value)});
   }
 
@@ -128,41 +128,41 @@ class AVLTree {
   }
 
   void insert(std::initializer_list<value_type> ilist) {
-    for (auto &&v : ilist) {
+    for (auto&& v : ilist) {
       insert(std::move(v));
     }
   }
 
   template<class P>
-  iterator insert(const_iterator hint, const P &value) {
+  iterator insert(const_iterator hint, const P& value) {
     (void)hint;
     return insert(value_type{value}).first;
   }
 
-  iterator insert(const_iterator hint, const value_type &value) {
+  iterator insert(const_iterator hint, const value_type& value) {
     (void)hint;
     return insert(value_type{value}).first;
   }
 
   template<class P>
-  iterator insert(const_iterator hint, P &&value) {
+  iterator insert(const_iterator hint, P&& value) {
     (void)hint;
     return insert(value_type{std::forward<P>(value)}).first;
   }
 
-  iterator insert(const_iterator hint, value_type &&value) {
+  iterator insert(const_iterator hint, value_type&& value) {
     (void)hint;
     return insert(std::move(value)).first;
   }
 
-  mapped_type &operator[](const key_type &key) {
+  mapped_type& operator[](const key_type& key) {
     auto position = &__base.__root;
 
     __avl_impl::__avl_tree_node *parent = nullptr;
 
     while (*position) {
       parent    = *position;
-      auto &now = reinterpret_cast<node_type *>(parent)->_value->first;
+      auto& now = reinterpret_cast<node_type *>(parent)->_value->first;
 
       if (key < now) {
         position = &parent->__left;
@@ -193,14 +193,14 @@ class AVLTree {
     return data_node->_value->second;
   }
 
-  mapped_type &operator[](key_type &&key) {
+  mapped_type& operator[](key_type&& key) {
     auto position = &__base.__root;
 
     __avl_impl::__avl_tree_node *parent = nullptr;
 
     while (*position) {
       parent    = *position;
-      auto &now = reinterpret_cast<node_type *>(parent)->_value->first;
+      auto& now = reinterpret_cast<node_type *>(parent)->_value->first;
 
       if (key < now) {
         position = &parent->__left;
@@ -243,7 +243,7 @@ class AVLTree {
   }
 
   template<class... Args>
-  std::pair<iterator, bool> emplace(Args &&...args) {
+  std::pair<iterator, bool> emplace(Args&&...args) {
     return insert(value_type{std::forward<Args>(args)...});
   }
 
@@ -262,7 +262,7 @@ class AVLTree {
   void erase(iterator first, iterator last);
   void erase(const_iterator first, const_iterator last);
 
-  size_type erase(const key_type &key) {
+  size_type erase(const key_type& key) {
     __avl_impl::__avl_tree_node *node = find_node(key);
     if (node) {
       __base.erase_node(node);
@@ -276,7 +276,7 @@ class AVLTree {
     return 0;
   }
 
-  friend auto tag_invoke(ht::tag_t<ht::debug_stringify>, const AVLTree &value,
+  friend auto tag_invoke(ht::tag_t<ht::debug_stringify>, const AVLTree& value,
                          uint16_t, int16_t) {
     std::ostringstream oss;
     oss << "AVLTree " << value.size() << " nodes: [";
@@ -348,7 +348,7 @@ class AVLTree {
     }
   }
 
-  __avl_impl::__avl_tree_node *find_node(const key_type &key) {
+  __avl_impl::__avl_tree_node *find_node(const key_type& key) {
     auto node = __base.__root;
     while (node) {
       auto data = reinterpret_cast<node_type *>(node);
@@ -364,13 +364,15 @@ class AVLTree {
   }
 
   void in_order_traval(__avl_impl::__avl_tree_node *root,
-                       const std::function<void(node_type *node)> &f) const {
+                       const std::function<void(node_type *node)>& f) const {
     if (root) {
-      if (root->__left)
+      if (root->__left) {
         in_order_traval(root->__left, f);
+      }
       f(reinterpret_cast<node_type *>(root));
-      if (root->__right)
+      if (root->__right) {
         in_order_traval(root->__right, f);
+      }
     }
   }
 

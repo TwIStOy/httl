@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <cstdint>
 
-#include "ht/core/cpp_feature.h"
+#include <ht/core/cpp_feature.h>
 
 namespace ht::__avl_impl {
 
@@ -129,10 +129,12 @@ inline __avl_tree_node *__avl_tree_node::next_node() {
   while (true) {
     last = node;
     node = node->__parent;
-    if (node == nullptr)
+    if (node == nullptr) {
       break;
-    if (node->__left == last)
+    }
+    if (node->__left == last) {
       break;
+    }
   }
 
   return node;
@@ -149,10 +151,12 @@ inline __avl_tree_node *__avl_tree_node::previous_node() {
   while (true) {
     last = node;
     node = node->__parent;
-    if (node == nullptr)
+    if (node == nullptr) {
       break;
-    if (node->__right == last)
+    }
+    if (node->__right == last) {
       break;
+    }
   }
 
   return node;
@@ -234,10 +238,12 @@ inline void __avl_tree_base::replace_node(__avl_tree_node *old_node,
                                           __avl_tree_node *new_node) {
   auto parent = old_node->__parent;
   replace_child(old_node, new_node, parent);
-  if (old_node->__left)
+  if (old_node->__left) {
     old_node->__left->__parent = new_node;
-  if (old_node->__right)
+  }
+  if (old_node->__right) {
     old_node->__right->__parent = new_node;
+  }
   new_node->__left   = old_node->__left;
   new_node->__right  = old_node->__right;
   new_node->__parent = old_node->__parent;
@@ -305,8 +311,9 @@ inline void __avl_tree_base::rebalance_new_node(__avl_tree_node *node) {
     h1     = __right_height(node);
     diff   = h0 - h1;
     height = std::max(h0, h1) + 1;
-    if (node->__height == height)
+    if (node->__height == height) {
       break;
+    }
     node->__height = height;
     if (diff < -1) {
       node = fix_l(node);
@@ -317,8 +324,9 @@ inline void __avl_tree_base::rebalance_new_node(__avl_tree_node *node) {
 }
 
 inline bool __avl_tree_base::check_node(__avl_tree_node *node) {
-  if (node == nullptr)
+  if (node == nullptr) {
     return true;
+  }
 
   int h0     = __left_height(node);
   int h1     = __right_height(node);
@@ -340,8 +348,9 @@ inline void __avl_tree_base::erase_node(__avl_tree_node *node) {
       child->__parent = parent;
     }
     replace_child(node, child, parent);
-    if (node->__parent == old)
+    if (node->__parent == old) {
       parent = node;
+    }
     node->__left   = old->__left;
     node->__right  = old->__right;
     node->__parent = old->__parent;

@@ -19,7 +19,7 @@ struct _fn {
   template<typename CPO, typename... Args,
            bool noexcept_ = noexcept(tag_invoke(std::declval<CPO>(),
                                                 std::declval<Args>()...))>
-  constexpr auto operator()(CPO cpo, Args &&...args) const noexcept(noexcept_) {
+  constexpr auto operator()(CPO cpo, Args&&...args) const noexcept(noexcept_) {
     return tag_invoke(std::move(cpo), std::forward<Args>(args)...);
   }
 };
@@ -33,7 +33,7 @@ inline constexpr core::__tag_invoke::_fn tag_invoke{};
 }  // namespace _tag_invoke
 using namespace _tag_invoke;  // NOLINT
 
-template<auto &CPO>
+template<auto& CPO>
 using tag_t = std::remove_cvref_t<decltype(CPO)>;
 
 template<typename Tag, typename... Args>

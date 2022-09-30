@@ -7,8 +7,8 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include "ht/macro/expand.hpp"
-#include "ht/macro/select.h"
+#include <ht/macro/select.h>
+#include <ht/macro/expand.hpp>
 
 /**
  * IsEmpty

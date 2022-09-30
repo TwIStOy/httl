@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-#include "ht/container/impl/fib_heap_entry.hpp"
+#include <ht/container/impl/fib_heap_entry.hpp>
 
 namespace ht {
 
@@ -28,8 +28,8 @@ class FibonacciHeap {
   using allocator_type   = Allocator;
   using allocator_traits = std::allocator_traits<allocator_type>;
 
-  using reference       = value_type &;
-  using const_reference = const value_type &;
+  using reference       = value_type&;
+  using const_reference = const value_type&;
   using pointer         = typename std::allocator_traits<Allocator>::pointer;
   using const_pointer =
       typename std::allocator_traits<Allocator>::const_pointer;
@@ -40,7 +40,7 @@ class FibonacciHeap {
 
   allocator_type get_allocator() const noexcept;
 
-  FibonacciHeap(FibonacciHeap &&rhs) noexcept
+  FibonacciHeap(FibonacciHeap&& rhs) noexcept
       : __root(rhs.__root),
         __count(rhs.__count),
         __compare(std::move(rhs.__compare)),
@@ -63,7 +63,7 @@ class FibonacciHeap {
     return result;
   }
 
-  FibonacciHeap &operator=(const FibonacciHeap &rhs) {
+  FibonacciHeap& operator=(const FibonacciHeap& rhs) {
     if (&rhs == this) {
       return *this;
     }
@@ -99,11 +99,11 @@ class FibonacciHeap {
     return entry;
   }
 
-  inline const auto &top() const {
+  inline const auto& top() const {
     return __root->__value;
   }
 
-  inline const auto &top_key() const {
+  inline const auto& top_key() const {
     return __root->__key;
   }
 
@@ -146,12 +146,15 @@ class FibonacciHeap {
   }  // }}}
 
   entry_type *merge_heap(entry_type *x, entry_type *y) {  // {{{
-    if (x == nullptr && y == nullptr)
+    if (x == nullptr && y == nullptr) {
       return nullptr;
-    if (x != nullptr && y == nullptr)
+    }
+    if (x != nullptr && y == nullptr) {
       return x;
-    if (x == nullptr && y != nullptr)
+    }
+    if (x == nullptr && y != nullptr) {
       return y;
+    }
 
     auto cache        = x->__next;
     x->__next         = y->__next;
@@ -240,8 +243,9 @@ class FibonacciHeap {
       }
 
       // update global min element
-      if (__compare(curr->__key, __root->__key))
+      if (__compare(curr->__key, __root->__key)) {
         __root = curr;
+      }
     }
     return to_pop;
   }  // }}}
@@ -257,8 +261,9 @@ class FibonacciHeap {
   void cut_node(entry_type *entry) {  // {{{
     entry->__mark = false;
 
-    if (entry->__parent == nullptr)
+    if (entry->__parent == nullptr) {
       return;
+    }
 
     if (entry->__next != entry) {
       entry->__next->__prev = entry->__prev();

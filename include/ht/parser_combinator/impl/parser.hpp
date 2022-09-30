@@ -11,9 +11,9 @@
 #include <type_traits>
 #include <utility>
 
-#include "ht/core/result.hpp"
-#include "ht/core/type_traits.hpp"
-#include "ht/parser_combinator/impl/input_stream.hpp"
+#include <ht/core/result.hpp>
+#include <ht/core/type_traits.hpp>
+#include <ht/parser_combinator/impl/input_stream.hpp>
 
 namespace ht::_parser_combinator_impl {
 
@@ -42,7 +42,7 @@ struct _parser {
   [[no_unique_address]] func_t _action;
 
   template<bool noexcept_ = std::is_nothrow_invocable_v<Func, input_stream>>
-  auto operator()(const input_stream &input) const noexcept(noexcept_) {
+  auto operator()(const input_stream& input) const noexcept(noexcept_) {
     return _action(input);
   }
 };
@@ -52,7 +52,7 @@ struct _parser {
 namespace ht {
 
 template<typename Func>
-auto make_parser(Func &&func) {
+auto make_parser(Func&& func) {
   return _parser_combinator_impl::_parser<Func>{std::forward<Func>(func)};
 }
 

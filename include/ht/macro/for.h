@@ -7,7 +7,7 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include "ht/macro/expand.hpp"
+#include <ht/macro/expand.hpp>
 
 /**
  * HT_FOR(count, action, sep, ...)

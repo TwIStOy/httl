@@ -9,11 +9,11 @@
 
 #include <utility>
 
-#include "ht/macro/expand.hpp"
-#include "ht/macro/for.h"
-#include "ht/macro/is_empty.h"
-#include "ht/macro/select.h"
-#include "ht/macro/tuple.h"
+#include <ht/macro/for.h>
+#include <ht/macro/is_empty.h>
+#include <ht/macro/select.h>
+#include <ht/macro/tuple.h>
+#include <ht/macro/expand.hpp>
 
 #define STEAL_FIELD(...)        (_STEAL_FIELD, __VA_ARGS__)
 #define STEAL_METHOD(...)       (_STEAL_METHOD, _STALER_EMPTY(), __VA_ARGS__)
@@ -127,10 +127,10 @@
   template struct __stealer::_STEALER_MOULD_NAME<_STEALER_SLOT_NAME(id),   \
                                                  &clz::name>;
 
-#define _STEALER_DECL_FIELDS_I(id, clz, type, name) type &name;
+#define _STEALER_DECL_FIELDS_I(id, clz, type, name) type& name;
 
 #define _STEALER_FIELD_GETTERS_I(id, clz, type, name)                   \
-  __stealer::_STEALER_SLOT_NAME(id)::value_type &HT_UNDERLIND_CONCAT(   \
+  __stealer::_STEALER_SLOT_NAME(id)::value_type& HT_UNDERLIND_CONCAT(   \
       _steal_field, name)() {                                           \
     return object_->*_STEALER_REPRODUCE_NAME(                           \
                          (__stealer::_STEALER_SLOT_NAME(id) *)nullptr); \
@@ -138,7 +138,7 @@
 
 #define _STEALER_DECL_METHOD_I(id, clz, qualifier, ret_type, name, ...)       \
   template<typename... Args>                                                  \
-  __stealer::_STEALER_SLOT_NAME(id)::return_type name(Args &&...args)         \
+  __stealer::_STEALER_SLOT_NAME(id)::return_type name(Args&&...args)          \
       qualifier {                                                             \
     return (object_->*_STEALER_REPRODUCE_NAME((__stealer::_STEALER_SLOT_NAME( \
                           id) *)nullptr))(std::forward<Args>(args)...);       \
@@ -178,33 +178,31 @@
 
 // }}}
 
-#define _STEALER_I(name, cls, ...)                                          \
-  namespace __stealer {                                                     \
-  template<typename Slot, typename Slot::member_type K>                     \
-  struct _STEALER_MOULD_NAME {                                              \
-    friend typename Slot::member_type _STEALER_REPRODUCE_NAME(Slot *) {     \
-      return K;                                                             \
-    }                                                                       \
-  };                                                                        \
-  _STEALER_FILTER_FIELDS(_STEALER_PREPARE_FIELD_I, __VA_ARGS__)             \
-  _STEALER_FILTER_METHODS(_STEALER_PREPARE_METHOD_I, __VA_ARGS__)           \
-  }                                                                         \
-  class name {                                                              \
-    using private_t = cls;                                                  \
-    private_t *object_;                                                     \
-                                                                            \
-   public:                                                                  \
-    explicit name(private_t *object)                                        \
-        : object_(object)                                                   \
-              _STEALER_FILTER_FIELDS(_STEALER_INITIALIZOR_I, __VA_ARGS__) { \
-    }                                                                       \
-    explicit name(private_t &object)                                        \
-        : object_(&object)                                                  \
-              _STEALER_FILTER_FIELDS(_STEALER_INITIALIZOR_I, __VA_ARGS__) { \
-    }                                                                       \
-    _STEALER_FILTER_FIELDS(_STEALER_DECL_FIELDS_I, __VA_ARGS__)             \
-    _STEALER_FILTER_FIELDS(_STEALER_FIELD_GETTERS_I, __VA_ARGS__)           \
-    _STEALER_FILTER_METHODS(_STEALER_DECL_METHOD_I, __VA_ARGS__)            \
+#define _STEALER_I(name, cls, ...)                                           \
+  namespace __stealer {                                                      \
+  template<typename Slot, typename Slot::member_type K>                      \
+  struct _STEALER_MOULD_NAME {                                               \
+    friend typename Slot::member_type _STEALER_REPRODUCE_NAME(Slot *) {      \
+      return K;                                                              \
+    }                                                                        \
+  };                                                                         \
+  _STEALER_FILTER_FIELDS(_STEALER_PREPARE_FIELD_I, __VA_ARGS__)              \
+  _STEALER_FILTER_METHODS(_STEALER_PREPARE_METHOD_I, __VA_ARGS__)            \
+  }                                                                          \
+  class name {                                                               \
+    using private_t = cls;                                                   \
+    private_t *object_;                                                      \
+                                                                             \
+   public:                                                                   \
+    explicit name(private_t *object)                                         \
+        : object_(object)                                                    \
+              _STEALER_FILTER_FIELDS(_STEALER_INITIALIZOR_I, __VA_ARGS__) {} \
+    explicit name(private_t& object)                                         \
+        : object_(&object)                                                   \
+              _STEALER_FILTER_FIELDS(_STEALER_INITIALIZOR_I, __VA_ARGS__) {} \
+    _STEALER_FILTER_FIELDS(_STEALER_DECL_FIELDS_I, __VA_ARGS__)              \
+    _STEALER_FILTER_FIELDS(_STEALER_FIELD_GETTERS_I, __VA_ARGS__)            \
+    _STEALER_FILTER_METHODS(_STEALER_DECL_METHOD_I, __VA_ARGS__)             \
   };
 
 // vim: fdm=marker

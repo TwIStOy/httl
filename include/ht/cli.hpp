@@ -45,7 +45,7 @@ static inline auto escaped_char =
        return '\\';
      }) +
      combinators::char_any) >>
-    [](const auto &x) {
+    [](const auto& x) {
       auto ch = std::get<1>(x);
       if (ch == 'b') {
         return '\b';
@@ -53,8 +53,9 @@ static inline auto escaped_char =
         return '\n';
       } else if (ch == 'r') {
         return '\r';
-      } else
+      } else {
         return std::get<1>(x);
+      }
     };
 
 // static inline auto str0 = combinators::combinator_many(str_char);
@@ -66,7 +67,7 @@ static inline auto str_double_quote =
 
 static inline auto cli_string = (str_double_quote +
                                  (((str_char || escaped_char) * 0) >>
-                                  [](const auto &s) {
+                                  [](const auto& s) {
                                     std::string str;
                                     for (auto c : s) {
                                       str.push_back(c);
@@ -74,12 +75,12 @@ static inline auto cli_string = (str_double_quote +
                                     return str;
                                   }) +
                                  str_double_quote) >>
-                                [](auto &&x) {
+                                [](auto&& x) {
                                   return std::get<1>(x);
                                 };
 
 static inline auto cli_arg = ((cli_char * 1) >>
-                              [](auto &&x) {
+                              [](auto&& x) {
                                 return std::string{std::begin(x), std::end(x)};
                               }) ||
                              cli_string;
@@ -91,7 +92,7 @@ static inline auto cli_space =
     1;
 
 static inline auto cli_line = (cli_arg + (((cli_space + cli_arg) >>
-                                           [](auto &&x) {
+                                           [](auto&& x) {
                                              return std::get<1>(x);
                                            }) *
                                           0));
@@ -111,7 +112,7 @@ class command_line_interpreter {
     std::string help;
 
     [[nodiscard]] virtual result<std::string, std::string> invoke(
-        const std::vector<std::string> &args) const = 0;
+        const std::vector<std::string>& args) const = 0;
 
     virtual ~command_base() = default;
   };
@@ -120,7 +121,7 @@ class command_line_interpreter {
   std::unordered_map<std::string, std::unique_ptr<command_base>> commands_;
 
   template<typename To>
-  static To type_convert(const std::string &t) {
+  static To type_convert(const std::string& t) {
     if constexpr (std::is_same_v<To, std::string>) {
       return t;
     } else if constexpr (std::is_integral_v<To>) {
@@ -132,8 +133,8 @@ class command_line_interpreter {
   }
 
   template<typename argument_t, typename Func, std::size_t... I>
-  static auto call_command(Func &&f, std::index_sequence<I...>,
-                           const std::vector<std::string> &args) {
+  static auto call_command(Func&& f, std::index_sequence<I...>,
+                           const std::vector<std::string>& args) {
     return f(type_convert<std::tuple_element_t<I, argument_t>>(args[I])...);
   }
 
@@ -146,12 +147,12 @@ class command_line_interpreter {
     ~command() override = default;
 
     template<typename F>
-    command(F &&f, std::string help_msg)
+    command(F&& f, std::string help_msg)
         : command_base(std::move(help_msg)), func(std::forward<F>(f)) {
     }
 
     [[nodiscard]] result<std::string, std::string> invoke(
-        const std::vector<std::string> &args) const final {
+        const std::vector<std::string>& args) const final {
       if (args.size() != std::tuple_size_v<typename sig::argument_t>) {
         return err(fmt::format("argument number not match, expect: {}, but {}",
                                std::tuple_size_v<typename sig::argument_t>,
@@ -174,7 +175,7 @@ class command_line_interpreter {
   }
 
   template<typename Func>
-  void register_command(Func &&func, std::string name, std::string help_msg) {
+  void register_command(Func&& func, std::string name, std::string help_msg) {
     using cmd_t = command<std::decay_t<Func>>;
 
     auto c = std::unique_ptr<cmd_t>(
@@ -183,7 +184,7 @@ class command_line_interpreter {
     commands_.insert(std::make_pair(std::move(name), std::move(c)));
   }
 
-  result<std::string, std::string> eval(const std::string &text) {
+  result<std::string, std::string> eval(const std::string& text) {
     auto r = parse(text);
     if (r.is_err()) {
       return err(std::move(r).unwrap_err());
@@ -198,7 +199,7 @@ class command_line_interpreter {
   }
 
  private:
-  result<input_command, std::string> parse(const std::string &text) {
+  result<input_command, std::string> parse(const std::string& text) {
     auto input = parser_combinator::input_stream{text};
 
     auto r = _cli_impl::cli_line(input);

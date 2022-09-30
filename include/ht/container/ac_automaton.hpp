@@ -16,8 +16,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "fmt/format.h"
-#include "ht/strings/stringify.hpp"
+#include <fmt/format.h>
+#include <ht/strings/stringify.hpp>
 
 namespace ht {
 
@@ -52,7 +52,7 @@ class basic_ac_automaton {
   using node_t     = _basic_ac_automaton_node<Ch>;
 
   basic_ac_automaton();
-  basic_ac_automaton(basic_ac_automaton &&) noexcept = default;
+  basic_ac_automaton(basic_ac_automaton&&) noexcept = default;
 
   void push(str_view_t pattern);
 
@@ -95,7 +95,7 @@ typename basic_ac_automaton<T>::node_t *basic_ac_automaton<T>::push_internal(
   auto cur = root_;
 
   for (size_t i = 0; i < pattern.length(); i++) {
-    auto &nxt = cur->next_[pattern[i]];
+    auto& nxt = cur->next_[pattern[i]];
     if (nxt == nullptr) {
       nxt = new_node();
     }
@@ -126,7 +126,7 @@ void basic_ac_automaton<T>::build() {
   root_->failed_  = root_;
   root_->is_root_ = true;
 
-  for (auto &[ch, node] : root_->next_) {
+  for (auto& [ch, node] : root_->next_) {
     node->failed_ = root_;
     Q.push(node);
   }
@@ -135,7 +135,7 @@ void basic_ac_automaton<T>::build() {
     auto cur = Q.front();
     Q.pop();
 
-    for (auto &[ch, node] : cur->next_) {
+    for (auto& [ch, node] : cur->next_) {
       node->failed_ = cur->failed_->next(ch);
       Q.push(node);
     }
@@ -168,7 +168,7 @@ using ac_automaton = basic_ac_automaton<>;
 
 template<typename T>
 auto tag_invoke(ht::tag_t<ht::stringify>,
-                const _basic_ac_automaton_node<T> &node, uint16_t, int16_t) {
+                const _basic_ac_automaton_node<T>& node, uint16_t, int16_t) {
   if (node.is_root_) {
     return "root";
   }
@@ -176,7 +176,7 @@ auto tag_invoke(ht::tag_t<ht::stringify>,
 }
 
 template<typename T>
-auto tag_invoke(ht::tag_t<ht::stringify>, const basic_ac_automaton<T> &v,
+auto tag_invoke(ht::tag_t<ht::stringify>, const basic_ac_automaton<T>& v,
                 uint16_t, int16_t) {
   using fmt::operator""_a;
 
@@ -187,7 +187,7 @@ auto tag_invoke(ht::tag_t<ht::stringify>, const basic_ac_automaton<T> &v,
   os << fmt::format("// nodes count: {}\n", v.nodes_.size());
 
   // define all nodes first
-  for (auto &node : v.nodes_) {
+  for (auto& node : v.nodes_) {
     os << fmt::format(
         "{name}[label=\"{label}\", shape=\"box\", style=filled, "
         "fillcolor=\"{color}\"]\n",
@@ -196,7 +196,7 @@ auto tag_invoke(ht::tag_t<ht::stringify>, const basic_ac_automaton<T> &v,
   }
 
   // define "next" edges
-  for (auto &node : v.nodes_) {
+  for (auto& node : v.nodes_) {
     for (auto it : node.next_) {
       os << fmt::format("{src}->{tgt}[label=\"{ch}\"]\n", "src"_a = *node,
                         "tgt"_a = *it.second, "ch"_a = it.first);
@@ -206,7 +206,7 @@ auto tag_invoke(ht::tag_t<ht::stringify>, const basic_ac_automaton<T> &v,
   os << "edge[color=\"#FF6347\"]\n";
 
   // define "failed" edges
-  for (auto &node : v.nodes_) {
+  for (auto& node : v.nodes_) {
     os << fmt::format("{src}->{tgt}[label=\"failed\"]\n", "src"_a = *node,
                       "tgt"_a = *node.failed_);
   }

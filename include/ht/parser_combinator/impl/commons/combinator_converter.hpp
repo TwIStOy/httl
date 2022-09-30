@@ -16,17 +16,17 @@
 #include <utility>
 #include <vector>
 
-#include "fmt/format.h"
-#include "ht/core/algorithm.hpp"
-#include "ht/core/result.hpp"
-#include "ht/core/type_traits.hpp"
-#include "ht/parser_combinator/impl/input_stream.hpp"
-#include "ht/parser_combinator/impl/parser.hpp"
+#include <fmt/format.h>
+#include <ht/core/algorithm.hpp>
+#include <ht/core/result.hpp>
+#include <ht/core/type_traits.hpp>
+#include <ht/parser_combinator/impl/input_stream.hpp>
+#include <ht/parser_combinator/impl/parser.hpp>
 
 namespace ht::combinators {
 
 template<typename P, typename F>
-auto combinator_converter(P &&p, F &&f) {
+auto combinator_converter(P&& p, F&& f) {
   using from_type  = typename std::decay_t<P>::value_type;
   using value_type = std::invoke_result_t<F, from_type>;
   using error_type = typename std::decay_t<P>::error_type;
@@ -35,7 +35,7 @@ auto combinator_converter(P &&p, F &&f) {
              error_type>;
 
   return make_parser([p = std::forward<P>(p),
-                      f = std::forward<F>(f)](const auto &_input) -> result_t {
+                      f = std::forward<F>(f)](const auto& _input) -> result_t {
     auto input = _input;
 
     auto r = p(input);
@@ -56,7 +56,7 @@ auto combinator_converter(P &&p, F &&f) {
 namespace ht::_parser_combinator_impl {
 
 template<typename P, typename F>
-auto operator>>(P &&p, F &&f) {
+auto operator>>(P&& p, F&& f) {
   return combinators::combinator_converter(std::forward<P>(p),
                                            std::forward<F>(f));
 }

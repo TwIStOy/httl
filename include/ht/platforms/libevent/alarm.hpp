@@ -13,7 +13,7 @@
 #include <memory>
 #include <utility>
 
-#include "ht/platforms/libevent/event_deleter.hpp"
+#include <ht/platforms/libevent/event_deleter.hpp>
 
 namespace ht::platform::libevent {
 
@@ -53,7 +53,7 @@ class alarm {
 };
 
 template<typename F>
-auto make_alarm(::event_base *base, F &&f) {
+auto make_alarm(::event_base *base, F&& f) {
   return alarm<F>(base, std::forward<F>(f));
 }
 

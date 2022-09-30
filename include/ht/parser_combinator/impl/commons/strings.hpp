@@ -11,9 +11,9 @@
 #include <string_view>
 #include <utility>
 
-#include "ht/core/result.hpp"
-#include "ht/parser_combinator/impl/input_stream.hpp"
-#include "ht/parser_combinator/impl/parser.hpp"
+#include <ht/core/result.hpp>
+#include <ht/parser_combinator/impl/input_stream.hpp>
+#include <ht/parser_combinator/impl/parser.hpp>
 
 namespace ht::combinators {
 
@@ -21,7 +21,7 @@ inline auto make_regex_parser(std::string_view s) {
   auto regex = std::regex(s.data(), s.size());
   return make_parser(
       [regex =
-           std::move(regex)](const _parser_combinator_impl::input_stream &input)
+           std::move(regex)](const _parser_combinator_impl::input_stream& input)
           -> result<std::pair<std::string_view,
                               _parser_combinator_impl::input_stream>,
                     void> {
@@ -40,7 +40,7 @@ inline auto make_regex_parser(std::string_view s) {
 
 inline auto make_string_eq_parser(std::string_view s) {
   return make_parser(
-      [s](const _parser_combinator_impl::input_stream &input)
+      [s](const _parser_combinator_impl::input_stream& input)
           -> result<std::pair<std::string_view,
                               _parser_combinator_impl::input_stream>,
                     void> {

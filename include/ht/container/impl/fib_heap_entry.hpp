@@ -15,8 +15,8 @@ struct fib_heap_entry {
   using key_type        = KeyType;
   using value_type      = ValueType;
   using size_type       = std::size_t;
-  using reference       = value_type &;
-  using const_reference = const value_type &;
+  using reference       = value_type&;
+  using const_reference = const value_type&;
   using key_compare     = Compare;
 
   fib_heap_entry(key_type key, value_type value)
@@ -38,7 +38,7 @@ struct fib_heap_entry {
   bool __mark       = false;
 
   template<typename Allocator>
-  fib_heap_entry *deep_copy(Allocator &alloc) {
+  fib_heap_entry *deep_copy(Allocator& alloc) {
     fib_heap_entry *new_entry = alloc.allocate(1);
     std::allocator_traits<Allocator>::construct(alloc, new_entry, __key,
                                                 __value);

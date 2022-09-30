@@ -7,7 +7,7 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include "ht/macro/detail/compiler.h"
+#include <ht/macro/detail/compiler.h>
 
 #if defined(DIAGNOSTIC_PUSH)
 #undef DIAGNOSTIC_PUSH

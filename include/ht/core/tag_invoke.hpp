@@ -7,7 +7,6 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include "ht/core/impl/tag_invoke.hpp"
+#include <ht/core/impl/tag_invoke.hpp>
 
 // vim: et sw=2 ts=2
-

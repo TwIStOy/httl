@@ -16,7 +16,7 @@ template<typename Func>
   requires std::is_nothrow_move_constructible_v<Func>
 class _scope_guard {
  public:
-  explicit _scope_guard(Func &&func) noexcept
+  explicit _scope_guard(Func&& func) noexcept
       : func_(std::forward<Func>(func)) {
   }
 
@@ -42,7 +42,7 @@ class _scope_guard {
 };
 
 template<typename Func>
-_scope_guard<Func> scope_guard(Func &&func) {
+_scope_guard<Func> scope_guard(Func&& func) {
   return _scope_guard<Func>(std::forward<Func>(func));
 }
 

@@ -16,24 +16,24 @@
 #include <utility>
 #include <vector>
 
-#include "fmt/format.h"
-#include "ht/core/algorithm.hpp"
-#include "ht/core/result.hpp"
-#include "ht/core/type_traits.hpp"
-#include "ht/parser_combinator/impl/input_stream.hpp"
-#include "ht/parser_combinator/impl/parser.hpp"
+#include <fmt/format.h>
+#include <ht/core/algorithm.hpp>
+#include <ht/core/result.hpp>
+#include <ht/core/type_traits.hpp>
+#include <ht/parser_combinator/impl/input_stream.hpp>
+#include <ht/parser_combinator/impl/parser.hpp>
 
 namespace ht::combinators {
 
 template<typename P>
-auto combinator_option(P &&p) {
+auto combinator_option(P&& p) {
   using element_type = typename std::decay_t<P>::value_type;
   using value_type   = std::optional<element_type>;
   using result_t =
       result<std::pair<value_type, _parser_combinator_impl::input_stream>,
              std::string>;
 
-  return make_parser([p = std::forward<P>(p)](const auto &_input) -> result_t {
+  return make_parser([p = std::forward<P>(p)](const auto& _input) -> result_t {
     value_type res;
     _parser_combinator_impl::input_stream input = _input;
 

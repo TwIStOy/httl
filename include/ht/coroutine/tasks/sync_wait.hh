@@ -8,8 +8,8 @@
 #include <exception>
 #include <type_traits>
 
-#include "ht/coroutine/detail/manual_event.hh"
-#include "ht/coroutine/traits/awaitable_traits.hpp"
+#include <ht/coroutine/detail/manual_event.hh>
+#include <ht/coroutine/traits/awaitable_traits.hpp>
 
 namespace ht::coro {
 
@@ -50,7 +50,7 @@ struct sync_wait_promise {
     return awaiter{};
   }
 
-  auto yield_value(T &&result) noexcept {
+  auto yield_value(T&& result) noexcept {
     result_ = std::addressof(result);
     return final_suspend();
   }
@@ -63,11 +63,11 @@ struct sync_wait_promise {
     exception_ = std::current_exception();
   }
 
-  T &&result() {
+  T&& result() {
     if (exception_) {
       std::rethrow_exception(exception_);
     }
-    return static_cast<T &&>(*result_);
+    return static_cast<T&&>(*result_);
   }
 
   ::ht::coro::detail::manual_event *event_{};
@@ -137,7 +137,7 @@ struct sync_wait_task {
   explicit sync_wait_task(handle_t coro) noexcept : coro_(coro) {
   }
 
-  sync_wait_task(sync_wait_task &&rhs) noexcept
+  sync_wait_task(sync_wait_task&& rhs) noexcept
       : coro_(std::exchange(rhs.coro_, handle_t{})) {
   }
 
@@ -147,8 +147,8 @@ struct sync_wait_task {
     }
   }
 
-  sync_wait_task(const sync_wait_task &)            = delete;
-  sync_wait_task &operator=(const sync_wait_task &) = delete;
+  sync_wait_task(const sync_wait_task&)            = delete;
+  sync_wait_task& operator=(const sync_wait_task&) = delete;
 
   void start(::ht::coro::detail::manual_event *event) noexcept {
     coro_.promise().start(event);
@@ -163,7 +163,7 @@ struct sync_wait_task {
 
 template<typename T,
          typename R = typename awaitable_traits<T>::awaiter_result_t>
-sync_wait_task<R> make_sync_wait_task(T &&a) {
+sync_wait_task<R> make_sync_wait_task(T&& a) {
   if constexpr (std::same_as<R, void>) {
     co_await std::forward<T>(a);
   } else {

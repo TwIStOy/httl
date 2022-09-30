@@ -39,7 +39,7 @@ using refl_info = typename __details::_refl_info<T>::type;
 
 template<uint32_t I, typename T>
   requires refl_exists<T>
-static auto &refl_ref(T &obj) {
+static auto& refl_ref(T& obj) {
   return obj.*(std::get<I>(refl_info<std::remove_cvref_t<T>>::property_ref()));
 }
 

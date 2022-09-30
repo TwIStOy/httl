@@ -5,8 +5,8 @@
 
 #include <utility>
 
-#include "ht/coroutine/detail/manual_event.hh"
-#include "ht/coroutine/tasks/sync_wait.hh"
+#include <ht/coroutine/detail/manual_event.hh>
+#include <ht/coroutine/tasks/sync_wait.hh>
 
 namespace ht::coro::utils {
 

@@ -13,28 +13,28 @@
 #include <type_traits>
 #include <utility>
 
-#include "fmt/format.h"
-#include "ht/core/algorithm.hpp"
-#include "ht/core/result.hpp"
-#include "ht/core/type_traits.hpp"
-#include "ht/parser_combinator/impl/input_stream.hpp"
-#include "ht/parser_combinator/impl/parser.hpp"
+#include <fmt/format.h>
+#include <ht/core/algorithm.hpp>
+#include <ht/core/result.hpp>
+#include <ht/core/type_traits.hpp>
+#include <ht/parser_combinator/impl/input_stream.hpp>
+#include <ht/parser_combinator/impl/parser.hpp>
 
 namespace ht::combinators {
 
 template<typename... T, std::size_t... Is>
-auto flat_tuple_impl(std::tuple<T...> &&t, std::index_sequence<Is...>) {
+auto flat_tuple_impl(std::tuple<T...>&& t, std::index_sequence<Is...>) {
   return std::tuple_cat(std::move(std::get<Is>(t))...);
 }
 
 template<typename... T>
-auto flat_tuple(std::tuple<T...> &&t) {
+auto flat_tuple(std::tuple<T...>&& t) {
   return flat_tuple_impl(std::move(t),
                          std::make_index_sequence<sizeof...(T)>{});
 }
 
 template<typename... Ps>
-auto combinator_plus(Ps &&...ps) {
+auto combinator_plus(Ps&&...ps) {
   using ps_result_t = std::tuple<typename std::decay_t<Ps>::result_t...>;
   using value_type  = decltype(std::tuple_cat(
       std::declval<typename std::decay_t<Ps>::result_as_tuple_t>()...));
@@ -46,7 +46,7 @@ auto combinator_plus(Ps &&...ps) {
 
   return make_parser(
       [ps = std::tuple<Ps...>(std::forward<Ps>(ps)...)](
-          const _parser_combinator_impl::input_stream &_input) -> result_t {
+          const _parser_combinator_impl::input_stream& _input) -> result_t {
         _parser_combinator_impl::input_stream input = _input;
 
         bool has_error = false;
@@ -89,7 +89,7 @@ namespace ht::_parser_combinator_impl {
 
 template<typename T, typename U>
   requires is_parser_v<std::decay_t<T>> && is_parser_v<std::decay_t<U>>
-auto operator+(T &&p0, U &&p1) {
+auto operator+(T&& p0, U&& p1) {
   return combinators::combinator_plus(std::forward<T>(p0), std::forward<U>(p1));
 }
 

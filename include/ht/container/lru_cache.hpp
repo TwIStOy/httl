@@ -30,8 +30,8 @@ class lru_cache {
   using hasher          = Hash;
   using key_equal       = KeyEqual;
   using allocator_type  = Allocator;
-  using reference       = value_type &;
-  using const_reference = const value_type &;
+  using reference       = value_type&;
+  using const_reference = const value_type&;
   using pointer         = typename std::allocator_traits<Allocator>::pointer;
   using const_pointer =
       typename std::allocator_traits<Allocator>::const_pointer;
@@ -46,11 +46,11 @@ class lru_cache {
   /**
    * Check if a key-value pair exists in cache
    */
-  [[nodiscard]] inline bool contains(const key_type &key) const {
+  [[nodiscard]] inline bool contains(const key_type& key) const {
     return index_.contains(key);
   }
 
-  inline reference operator[](const key_type &key) {
+  inline reference operator[](const key_type& key) {
     if (auto it = index_.find(key); it != index_.end()) {
       return it->second->second;
     } else {
@@ -63,7 +63,7 @@ class lru_cache {
     }
   }
 
-  std::optional<reference> get(const key_type &key) {
+  std::optional<reference> get(const key_type& key) {
     if (auto it = index_.find(key); it != index_.end()) {
       visit(it->second);
       return it->second->second;
@@ -71,7 +71,7 @@ class lru_cache {
     return std::nullopt;
   }
 
-  std::optional<const_reference> get(const key_type &key) const {
+  std::optional<const_reference> get(const key_type& key) const {
     if (auto it = index_.find(key); it != index_.end()) {
       visit(it->second);
       return it->second->second;
@@ -79,14 +79,14 @@ class lru_cache {
     return std::nullopt;
   }
 
-  iterator find(const key_type &key) {
+  iterator find(const key_type& key) {
     if (auto it = index_.find(key); it != index_.end()) {
       return it->second;
     }
     return values_.end();
   }
 
-  const_iterator find(const key_type &key) const {
+  const_iterator find(const key_type& key) const {
     if (auto it = index_.find(key); it != index_.end()) {
       return it->second;
     }
@@ -108,7 +108,7 @@ class lru_cache {
   }
 
   template<typename... Args>
-  iterator emplace(Args &&...args) {
+  iterator emplace(Args&&...args) {
     return insert(value_type{std::forward<Args>(args)...});
   }
 
@@ -150,7 +150,7 @@ class lru_cache {
     erase_entry(std::next(it).base());
   }
 
-  inline void erase_entry(const KeyType &key) {
+  inline void erase_entry(const KeyType& key) {
     if (auto it = index_.find(key); it != index_.end()) {
       erase_entry(it->second);
     }

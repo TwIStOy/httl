@@ -62,4 +62,3 @@
 #define MSVC_VERSION_GE(major, minor, patch) \
   (_MSC_VER >= ((major * 100) + (minor)))
 #endif
-

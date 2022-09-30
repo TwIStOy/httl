@@ -15,13 +15,13 @@
 namespace ht::_tag_impl {
 
 template<typename... Args>
-auto tag_invoke(stringify_fn, const std::variant<Args...> &value,
+auto tag_invoke(stringify_fn, const std::variant<Args...>& value,
                 uint16_t level, int16_t indent) {
   (void)level;
   (void)indent;
 
   return std::visit(
-      [&](const auto &r) {
+      [&](const auto& r) {
         return ht::stringify(r, level, indent);
       },
       value);

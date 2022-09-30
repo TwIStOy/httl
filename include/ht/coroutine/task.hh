@@ -12,7 +12,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "ht/core/box.hpp"
+#include <ht/core/box.hpp>
 
 namespace ht::coro {
 

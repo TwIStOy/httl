@@ -11,7 +11,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "ht/core/type_utils.hpp"
+#include <ht/core/type_utils.hpp>
 
 namespace ht {
 
@@ -35,9 +35,9 @@ struct memory_view {
     }
   }
 
-  memory_view()                        = delete;
-  memory_view(const memory_view &)     = default;
-  memory_view(memory_view &&) noexcept = default;
+  memory_view()                       = delete;
+  memory_view(const memory_view&)     = default;
+  memory_view(memory_view&&) noexcept = default;
 
   template<std::size_t I>
     requires(I <= std::tuple_size_v<layers_pack_t>)

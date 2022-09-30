@@ -9,8 +9,8 @@
 
 #include <iterator>
 
-#include "ht/container/impl/avl_tree_base.hpp"
-#include "ht/strings/stringify.hpp"
+#include <ht/container/impl/avl_tree_base.hpp>
+#include <ht/strings/stringify.hpp>
 
 namespace ht::__avl_impl {
 
@@ -23,7 +23,7 @@ struct _AVL_Tree_Node {
 template<typename _Tp>
 struct _AVL_Tree_Iterator {
   using value_type = _Tp;
-  using reference  = _Tp &;
+  using reference  = _Tp&;
   using pointer    = _Tp *;
 
   using iterator_category = std::bidirectional_iterator_tag;
@@ -50,7 +50,7 @@ struct _AVL_Tree_Iterator {
     return _node->_value;
   }
 
-  _Self &operator++() noexcept {
+  _Self& operator++() noexcept {
     _node = reinterpret_cast<_node_type>(_node->_base_node.next_node());
     return *this;
   }
@@ -61,7 +61,7 @@ struct _AVL_Tree_Iterator {
     return __tmp;
   }
 
-  _Self &operator--() noexcept {
+  _Self& operator--() noexcept {
     _node = reinterpret_cast<_node_type>(_node->_base_node.previous_node());
     return *this;
   }
@@ -72,16 +72,16 @@ struct _AVL_Tree_Iterator {
     return __tmp;
   }
 
-  bool operator==(const _Self &x) const noexcept {
+  bool operator==(const _Self& x) const noexcept {
     return _node == x._node;
   }
 
-  bool operator!=(const _Self &x) const noexcept {
+  bool operator!=(const _Self& x) const noexcept {
     return _node != x._node;
   }
 
   friend std::string tag_invoke(ht::tag_t<ht::debug_stringify>,
-                                const _AVL_Tree_Iterator &v, uint16_t,
+                                const _AVL_Tree_Iterator& v, uint16_t,
                                 int16_t) {
     if (v._node == nullptr) {
       return "AVLTree-Iterator(null)";
@@ -99,7 +99,7 @@ struct _AVL_Tree_Iterator {
 template<typename _Tp>
 struct _AVL_Tree_Const_Iterator {
   using value_type = _Tp;
-  using reference  = _Tp &;
+  using reference  = _Tp&;
   using pointer    = _Tp *;
 
   using iterator = _AVL_Tree_Iterator<_Tp>;
@@ -120,7 +120,7 @@ struct _AVL_Tree_Const_Iterator {
       : _node(reinterpret_cast<_node_type>(_x)) {
   }
 
-  _AVL_Tree_Const_Iterator(const iterator &it) noexcept : _node{it._node} {
+  _AVL_Tree_Const_Iterator(const iterator& it) noexcept : _node{it._node} {
   }
 
   reference operator*() const noexcept {
@@ -131,7 +131,7 @@ struct _AVL_Tree_Const_Iterator {
     return &_node->_value;
   }
 
-  _Self &operator++() noexcept {
+  _Self& operator++() noexcept {
     auto next = _node->_base_node.next_node();
     if (next) {
       _node = reinterpret_cast<_node_type>(next);
@@ -147,7 +147,7 @@ struct _AVL_Tree_Const_Iterator {
     return __tmp;
   }
 
-  _Self &operator--() noexcept {
+  _Self& operator--() noexcept {
     auto next = _node->_base_node.previous_node();
     if (next) {
       _node = reinterpret_cast<_node_type>(next);
@@ -163,16 +163,16 @@ struct _AVL_Tree_Const_Iterator {
     return __tmp;
   }
 
-  bool operator==(const _Self &x) const noexcept {
+  bool operator==(const _Self& x) const noexcept {
     return _node == x._node;
   }
 
-  bool operator!=(const _Self &x) const noexcept {
+  bool operator!=(const _Self& x) const noexcept {
     return _node != x._node;
   }
 
   friend std::string tag_invoke(ht::tag_t<ht::debug_stringify>,
-                                const _AVL_Tree_Const_Iterator &v, uint16_t,
+                                const _AVL_Tree_Const_Iterator& v, uint16_t,
                                 int16_t) {
     if (v._node == nullptr) {
       return "AVLTree-Const-Iterator(null)";

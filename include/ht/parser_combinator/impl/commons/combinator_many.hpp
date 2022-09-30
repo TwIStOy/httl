@@ -15,17 +15,17 @@
 #include <utility>
 #include <vector>
 
-#include "fmt/format.h"
-#include "ht/core/algorithm.hpp"
-#include "ht/core/result.hpp"
-#include "ht/core/type_traits.hpp"
-#include "ht/parser_combinator/impl/input_stream.hpp"
-#include "ht/parser_combinator/impl/parser.hpp"
+#include <fmt/format.h>
+#include <ht/core/algorithm.hpp>
+#include <ht/core/result.hpp>
+#include <ht/core/type_traits.hpp>
+#include <ht/parser_combinator/impl/input_stream.hpp>
+#include <ht/parser_combinator/impl/parser.hpp>
 
 namespace ht::combinators {
 
 template<typename P, template<typename> class S = std::vector>
-auto combinator_many(P &&p, uint32_t at_least = 0) {
+auto combinator_many(P&& p, uint32_t at_least = 0) {
   using element_type = typename std::decay_t<P>::value_type;
   using value_type   = S<element_type>;
   using result_t =
@@ -33,7 +33,7 @@ auto combinator_many(P &&p, uint32_t at_least = 0) {
              std::string>;
 
   return make_parser(
-      [p = std::forward<P>(p), at_least](const auto &_input) -> result_t {
+      [p = std::forward<P>(p), at_least](const auto& _input) -> result_t {
         value_type res;
         _parser_combinator_impl::input_stream input = _input;
         while (true) {
@@ -57,7 +57,7 @@ namespace ht::_parser_combinator_impl {
 
 template<typename T>
   requires is_parser_v<std::decay_t<T>>
-auto operator*(T &&p0, uint32_t at_least) {
+auto operator*(T&& p0, uint32_t at_least) {
   return combinators::combinator_many(std::forward<T>(p0), at_least);
 }
 

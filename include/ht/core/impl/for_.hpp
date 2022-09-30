@@ -14,7 +14,7 @@
 namespace ht::_algorithm_impl {
 
 template<typename Func, std::size_t... Is>
-void for_(Func &&func, std::index_sequence<Is...>) {
+void for_(Func&& func, std::index_sequence<Is...>) {
   (func(std::integral_constant<std::size_t, Is>{}), ...);
 }
 
@@ -23,7 +23,7 @@ void for_(Func &&func, std::index_sequence<Is...>) {
 namespace ht {
 
 template<std::size_t N, typename Func>
-void for_(Func &&func) {
+void for_(Func&& func) {
   _algorithm_impl::for_(std::forward<Func>(func),
                         std::make_index_sequence<N>());
 }

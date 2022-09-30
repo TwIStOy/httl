@@ -12,4 +12,3 @@
 #else
 #define HAS_WARNING(warning)
 #endif
-

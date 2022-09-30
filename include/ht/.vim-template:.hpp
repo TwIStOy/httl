@@ -9,9 +9,8 @@
 
 namespace ht {
 
-%HERE%
+% HERE %
 
 }  // namespace ht
 
 // vim: et sw=2 ts=2
-

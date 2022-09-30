@@ -22,14 +22,14 @@ namespace ht::_tag_impl {
 
 template<typename T>
   requires std::is_integral_v<T>
-inline auto tag_invoke(ht::tag_t<ht::debug_stringify>, const T &value, uint16_t,
+inline auto tag_invoke(ht::tag_t<ht::debug_stringify>, const T& value, uint16_t,
                        int16_t) {
   std::ostringstream oss;
   oss << value;
   return oss.str();
 }
 
-inline auto tag_invoke(ht::tag_t<ht::debug_stringify>, const std::string &str,
+inline auto tag_invoke(ht::tag_t<ht::debug_stringify>, const std::string& str,
                        uint16_t, int16_t) {
   std::ostringstream oss;
   oss << '"' << str << '"';
@@ -38,7 +38,7 @@ inline auto tag_invoke(ht::tag_t<ht::debug_stringify>, const std::string &str,
 
 template<typename T, typename U>
 inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
-                       const std::pair<T, U> &value, uint16_t level,
+                       const std::pair<T, U>& value, uint16_t level,
                        int16_t indent) {
   std::ostringstream oss;
 
@@ -66,7 +66,7 @@ inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
 
 template<typename... Args>
 inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
-                       const std::tuple<Args...> &value, uint16_t level,
+                       const std::tuple<Args...>& value, uint16_t level,
                        int16_t indent) {
   std::ostringstream oss;
 
@@ -92,7 +92,7 @@ inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
 }
 
 template<std::ranges::sized_range T>
-inline std::string tag_invoke(ht::tag_t<ht::debug_stringify>, const T &value,
+inline std::string tag_invoke(ht::tag_t<ht::debug_stringify>, const T& value,
                               uint16_t level, int16_t indent) {
   if (std::ranges::size(value) == 0) {
     return "[]";

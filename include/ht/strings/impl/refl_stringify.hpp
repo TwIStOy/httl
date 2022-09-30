@@ -19,7 +19,7 @@ namespace ht::_tag_impl {
 
 template<typename T>
   requires has_refl_v<T>
-auto tag_invoke(ht::tag_t<ht::stringify>, const T &value, uint16_t level,
+auto tag_invoke(ht::tag_t<ht::stringify>, const T& value, uint16_t level,
                 int16_t indent) {
   std::ostringstream oss;
   using info_t = refl_info<T>;
@@ -52,7 +52,7 @@ auto tag_invoke(ht::tag_t<ht::stringify>, const T &value, uint16_t level,
 
 template<typename T>
   requires has_refl_v<T>
-auto tag_invoke(ht::tag_t<ht::debug_stringify>, const T &value, uint16_t level,
+auto tag_invoke(ht::tag_t<ht::debug_stringify>, const T& value, uint16_t level,
                 int16_t indent) {
   std::ostringstream oss;
   using info_t = refl_info<T>;

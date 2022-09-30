@@ -19,7 +19,7 @@ template<typename C, std::ranges::range R>
   requires std::convertible_to<std::ranges::range_value_t<R>,
                                typename C::value_type> &&
            std::ranges::sized_range<R>
-C operator|(R &&r, collect_helper<C>) {
+C operator|(R&& r, collect_helper<C>) {
   return C{std::ranges::begin(r), std::ranges::end(r)};
 }
 

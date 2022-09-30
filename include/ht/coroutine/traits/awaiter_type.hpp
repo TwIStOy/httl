@@ -7,7 +7,7 @@
 #include <coroutine>
 #include <type_traits>
 
-#include "ht/coroutine/traits/coroutine_handle_type.hpp"
+#include <ht/coroutine/traits/coroutine_handle_type.hpp>
 
 namespace ht::coro {
 

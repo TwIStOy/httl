@@ -44,7 +44,7 @@ inline std::string_view remove_leading_spaces(std::string_view str) {
  * Joins elements of a range with separator into a single string.
  */
 template<std::ranges::range Rng>
-std::string str_join(const Rng &container, std::string_view sep) {
+std::string str_join(const Rng& container, std::string_view sep) {
   auto end = std::ranges::end(container);
   std::ostringstream oss;
   bool first = true;
@@ -64,7 +64,7 @@ std::string str_join(const Rng &container, std::string_view sep) {
  */
 template<std::ranges::range C, typename F>
   requires std::invocable<F, std::ranges::range_value_t<C>>
-std::string str_join(const C &container, std::string_view sep, F &&f) {
+std::string str_join(const C& container, std::string_view sep, F&& f) {
   auto end = std::ranges::end(container);
   std::ostringstream oss;
   bool first = true;
