@@ -1,5 +1,9 @@
-// Copyright (c) 2020 - present, Hawtian Wang (twistoy.wang@gmail.com)
+// Template Library for C++
 //
+// Copyright (c) 2020 - present, Hawtian Wang
+// All rights reserved.
+//
+// For the license information refer to version.h.
 
 #pragma once  // NOLINT(build/header_guard)
 
@@ -9,10 +13,17 @@
 #include <memory>
 #include <optional>
 #include <stdexcept>
+#include <stop_token>
 #include <type_traits>
 #include <utility>
 
-#include "ht/core/box.hpp"
+// ---
+
+#include <ht/concurrency/get_stop_token.hpp>
+#include <ht/core/box.hpp>
+#include <ht/core/result.hpp>
+#include <ht/coroutine/impl/coro_handle.hpp>
+#include <ht/coroutine/impl/exchange_corotine_handle.hpp>
 
 namespace ht::coro {
 
@@ -21,23 +32,15 @@ class task;
 
 namespace __details {
 
-struct __task_promise_base {  // {{{
-  std::coroutine_handle<> coro_;
-
-  struct final_awaiter {  // {{{
+struct __task_promise_base {
+  struct _final_awaiter_base {
     [[nodiscard]] static inline constexpr bool await_ready() noexcept {
       return false;
     }
 
-    template<std::derived_from<__task_promise_base> P>
-    inline std::coroutine_handle<> await_suspend(
-        std::coroutine_handle<P> coro) noexcept {
-      return coro.promise().coro_;
-    }
-
     inline constexpr void await_resume() noexcept {
     }
-  };  // }}}
+  };
 
   __task_promise_base() = default;
 
@@ -47,77 +50,79 @@ struct __task_promise_base {  // {{{
     return std::suspend_always{};
   }
 
-  [[nodiscard]] static inline constexpr auto final_suspend() noexcept {
-    return final_awaiter{};
+  [[nodiscard]] inline std::coroutine_handle<> unhandled_done() const {
+    return handle_.done();
   }
 
-  inline void set_coro(std::coroutine_handle<> coro) noexcept {
-    coro_ = coro;
+  HT_ALWAYS_INLINE friend auto tag_invoke(tag_t<get_stop_token>,
+                                          const __task_promise_base &p) {
+    return p.stoken_;
   }
-};  // }}}
+
+  HT_ALWAYS_INLINE friend auto tag_invoke(tag_t<exchange_coroutine_handle>,
+                                          __task_promise_base &p,
+                                          coro_handle<> rhs) {
+    return std::exchange(p.handle_, static_cast<coro_handle<> &&>(rhs));
+  }
+
+  coro_handle<> handle_;
+  std::stop_token stoken_;
+};
 
 template<typename T>
-class task_promise final : public __task_promise_base {  // {{{
+class task_promise final : public __task_promise_base {
  public:
+  using result_type = T;
+
   task_promise() noexcept = default;
 
-  ~task_promise() override {
-    switch (state_) {
-      case state::kNothing:
-        break;
-      case state::kException:
-        ht::destruct_union_member(&storage_.exception);
-        break;
-      case state::kValue:
-        ht::destruct_union_member(&storage_.value);
-        break;
-    }
-  }
+  ~task_promise() override = default;
 
   task<T> get_return_object() noexcept;
 
   void unhandled_exception() noexcept {
-    state_ = state::kException;
-    ht::construct_union_member(&storage_.exception, std::current_exception());
+    expected_.set_error(std::current_exception());
   }
 
   template<typename U>
     requires std::convertible_to<U &&, T>
   void return_value(U &&value) noexcept(
       std::is_nothrow_convertible_v<U &&, T>) {
-    state_ = state::kValue;
-    ht::construct_union_member(&storage_.value, std::forward<U &&>(value));
+    expected_.set_value(std::forward<U>(value));
   }
 
   T &result() & {
-    if (state_ == state::kException) {
-      std::rethrow_exception(storage_.exception.get());
+    if (expected_.is_err()) {
+      std::rethrow_exception(expected_.unwrap_err());
     }
-    return storage_.value.get();
+    return expected_.unwrap();
   }
 
   T &&result() && {
-    if (state_ == state::kException) {
-      std::rethrow_exception(storage_.exception.get());
+    if (expected_.is_err()) {
+      std::rethrow_exception(expected_.unwrap_err());
     }
-    return std::move(storage_.value).get();
+    return std::move(expected_).unwrap();
+  }
+
+  auto final_suspend() noexcept {
+    struct awaiter : _final_awaiter_base {
+      auto await_suspend(std::coroutine_handle<task_promise> p) noexcept {
+        return p.promise().handle_.handle();
+      }
+    };
+    return awaiter{};
   }
 
  private:
-  enum class state {
-    kNothing,
-    kException,
-    kValue,
-  } state_{state::kNothing};
-  union {
-    ht::box<T> value;
-    ht::box<std::exception_ptr> exception;
-  } storage_{};
-};  // }}}
+  ht::result<T, std::exception_ptr> expected_;
+};
 
 template<>
-class task_promise<void> final : public __task_promise_base {  // {{{
+class task_promise<void> final : public __task_promise_base {
  public:
+  using result_type = void;
+
   task_promise() noexcept = default;
 
   task<void> get_return_object() noexcept;
@@ -135,36 +140,19 @@ class task_promise<void> final : public __task_promise_base {  // {{{
     }
   }
 
- private:
-  std::exception_ptr exception_;
-};  // }}}
-
-template<typename T>
-class task_promise<T &> final : public __task_promise_base {  // {{{
- public:
-  task_promise() noexcept = default;
-
-  task<T &> get_return_object() noexcept;
-
-  void unhandled_exception() noexcept {
-    exception_ = std::current_exception();
-  }
-
-  inline void return_value(T &value) noexcept {
-    value_ = std::addressof(value);
-  }
-
-  T &result() {
-    if (exception_) {
-      std::rethrow_exception(exception_);
-    }
-    return *value_;
+  static auto final_suspend() noexcept {
+    struct awaiter : _final_awaiter_base {
+      static auto await_suspend(
+          std::coroutine_handle<task_promise> p) noexcept {
+        return p.promise().handle_.handle();
+      }
+    };
+    return awaiter{};
   }
 
  private:
-  T *value_{nullptr};
   std::exception_ptr exception_;
-};  // }}}
+};
 
 }  // namespace __details
 
@@ -175,7 +163,7 @@ class [[nodiscard]] task {
   using value_type   = T;
 
  private:
-  struct awaiter_base {  // {{{
+  struct awaiter_base {
     std::coroutine_handle<promise_type> coro;
     awaiter_base() = default;
 
@@ -188,10 +176,10 @@ class [[nodiscard]] task {
     }
 
     std::coroutine_handle<> await_suspend(std::coroutine_handle<> h) noexcept {
-      coro.promise().set_coro(h);
+      exchange_coroutine_handle(coro.promise(), h);
       return coro;
     }
-  };  // }}}
+  };
 
  public:
   task() noexcept = default;
@@ -271,10 +259,6 @@ inline task<> task_promise<void>::get_return_object() noexcept {
   return task<>{std::coroutine_handle<task_promise>::from_promise(*this)};
 }
 
-template<typename T>
-task<T &> task_promise<T &>::get_return_object() noexcept {
-  return task<T &>{std::coroutine_handle<task_promise>::from_promise(*this)};
-}
 }  // namespace __details
 
 }  // namespace ht::coro

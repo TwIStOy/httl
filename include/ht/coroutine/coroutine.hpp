@@ -3,9 +3,9 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include "ht/coroutine/detached_task.hh"
-#include "ht/coroutine/task.hh"
-#include "ht/coroutine/utils/sync_wait.hh"
+#include <ht/coroutine/detached_task.hh>
+#include <ht/coroutine/impl/task.hpp>
+#include <ht/coroutine/utils/sync_wait.hh>
 
 namespace ht {
 

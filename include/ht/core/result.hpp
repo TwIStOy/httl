@@ -16,8 +16,11 @@
 #include <utility>
 #include <variant>
 
-#include "ht/core/box.hpp"
-#include "ht/core/cpp_feature.h"
+// ---
+
+#include <ht/core/cpp_feature.h>
+
+#include <ht/core/box.hpp>
 
 namespace ht {
 
@@ -173,6 +176,10 @@ struct result {
 
  public:
   result() = default;
+
+  [[nodiscard]] HT_ALWAYS_INLINE bool is_empty() const {
+    return state_ == _state::empty;
+  }
 
   template<typename U>
     requires std::convertible_to<U, value_type>

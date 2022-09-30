@@ -5,12 +5,10 @@
 //
 // For the license information refer to version.h.
 
-#include "ht/coroutine/coroutine.hpp"
-
+#include <catch2/catch_all.hpp>
+#include <ht/coroutine/coroutine.hpp>
+#include <ht/coroutine/traits/get_awaiter.hpp>
 #include <iostream>
-
-#include "catch2/catch_all.hpp"
-#include "ht/coroutine/traits/get_awaiter.hpp"
 
 TEST_CASE("coroutine handle type", "[coroutine][traits]") {
   struct P;
