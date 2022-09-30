@@ -61,6 +61,13 @@ struct tuple_slice {
       index_sequence_plus<I>(std::make_index_sequence<sizeof...(Ts) - I>{})));
 };
 
+// Utility template struct for represent a specify type in parameters for
+// overloading to avoid object overhead
+template<typename T>
+struct type_tag {
+  using type = T;
+};
+
 }  // namespace ht
 
 // vim: et sw=2 ts=2

@@ -7,11 +7,10 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <ht/core/tag_invoke.hpp>
+#include <ht/core/type_utils.hpp>
 #include <sstream>
 #include <type_traits>
-
-#include "ht/core/tag_invoke.hpp"
-#include "ht/core/type_utils.hpp"
 
 namespace ht {
 

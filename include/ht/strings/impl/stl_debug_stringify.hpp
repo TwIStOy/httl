@@ -7,17 +7,16 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <ht/core/algorithm.hpp>
+#include <ht/core/impl/tag_invoke.hpp>
+#include <ht/core/type_utils.hpp>
+#include <ht/strings/impl/stringify.hpp>
 #include <ranges>
 #include <sstream>
 #include <string>
 #include <tuple>
 #include <type_traits>
 #include <utility>
-
-#include "ht/core/algorithm.hpp"
-#include "ht/core/impl/tag_invoke.hpp"
-#include "ht/core/type_utils.hpp"
-#include "ht/strings/impl/stringify.hpp"
 
 namespace ht::_tag_impl {
 
@@ -92,12 +91,7 @@ inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
   return oss.str();
 }
 
-template<typename T>
-  requires requires(T &&v) {
-             { std::ranges::begin(v) };
-             { std::ranges::end(v) };
-             { std::ranges::size(v) };
-           }
+template<std::ranges::sized_range T>
 inline std::string tag_invoke(ht::tag_t<ht::debug_stringify>, const T &value,
                               uint16_t level, int16_t indent) {
   if (std::ranges::size(value) == 0) {

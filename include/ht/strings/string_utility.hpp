@@ -7,9 +7,12 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <ht/core/cpp_feature.h>
+
 #include <concepts>
 #include <cstring>
 #include <functional>
+#include <ht/strings/stringify.hpp>
 #include <iterator>
 #include <ranges>
 #include <sstream>
@@ -17,9 +20,6 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
-
-#include "ht/core/cpp_feature.h"
-#include "ht/strings/stringify.hpp"
 
 namespace ht {
 

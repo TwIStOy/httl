@@ -7,11 +7,10 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <ht/core/type_utils.hpp>
+#include <ht/strings/impl/stringify.hpp>
 #include <sstream>
 #include <variant>
-
-#include "ht/core/type_utils.hpp"
-#include "ht/strings/impl/stringify.hpp"
 
 namespace ht::_tag_impl {
 
