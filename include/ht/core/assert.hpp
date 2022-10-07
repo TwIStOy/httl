@@ -34,7 +34,7 @@ inline void runtime_assert(bool condition, auto&& failed_fn) {
 }
 
 // clang-format off
-auto assert_in_bound(
+[[nodiscard]] auto assert_in_bound(
     auto&& obj, auto&& arg,
     std::source_location where = std::source_location::current()) -> auto&&
   requires ((std::is_integral_v<std::remove_cvref_t<decltype(arg)>>) &&
@@ -47,7 +47,7 @@ auto assert_in_bound(
   return std::forward<decltype(obj)>(obj)[ std::forward<decltype(arg)>(arg) ];
 }
 
-auto assert_in_bound(
+[[nodiscard]] auto assert_in_bound(
     auto&& obj, auto&& arg,
     std::source_location where = std::source_location::current()) -> auto&&
   requires((!std::is_integral_v<std::remove_cvref_t<decltype(arg)>>) &&
