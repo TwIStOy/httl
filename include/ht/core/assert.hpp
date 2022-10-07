@@ -39,7 +39,7 @@ inline void runtime_assert(bool condition, auto&& failed_fn) {
     std::source_location where = std::source_location::current()) -> auto&&
   requires ((std::is_integral_v<std::remove_cvref_t<decltype(arg)>>) &&
       requires { std::ssize(obj); obj[arg]; }) {
-  runtime_assert(arg >= 0 && arg < std::ssize(obj), [where]() {
+  runtime_assert(arg >= 0 && arg < std::ssize(obj), [where] {
     std::cerr << where.file_name() << ":" << where.line() << "] "
               << where.function_name() << ": "
               << "out of bounds access detected";
