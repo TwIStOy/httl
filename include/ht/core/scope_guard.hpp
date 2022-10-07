@@ -42,7 +42,7 @@ class _scope_guard {
 };
 
 template<typename Func>
-_scope_guard<Func> scope_guard(Func&& func) {
+[[nodiscard]] _scope_guard<Func> scope_guard(Func&& func) {
   return _scope_guard<Func>(std::forward<Func>(func));
 }
 
