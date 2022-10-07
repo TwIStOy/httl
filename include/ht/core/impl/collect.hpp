@@ -27,7 +27,7 @@ C operator|(R&& r, collect_helper<C>) {
 
 namespace ht {
 
-template<std::ranges::range Container>
+template<std::ranges::sized_range Container>
   requires(!std::ranges::view<Container>)
 auto collect() {
   return _algorithm_impl::collect_helper<Container>{};
