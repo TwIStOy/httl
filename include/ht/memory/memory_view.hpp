@@ -30,7 +30,7 @@ struct memory_view {
   static constexpr std::size_t expect_size_v = (sizeof(Ts) + ...);
 
   explicit memory_view(span_t span) : data_(span) {
-    if (span.size_bytes() < expect_size_v) {
+    if (span.size_bytes() < expect_size_v) [[unlikely]] {
       throw std::runtime_error("span is not long enough");
     }
   }
@@ -58,7 +58,7 @@ struct memory_view {
 template<typename... Ts, typename Ch, std::size_t Extent>
 auto view_as(std::span<Ch, Extent> span) {
   using view_t = memory_view<Ch, Extent, Ts...>;
-  if (span.size_bytes() < view_t::expect_size_v) {
+  if (span.size_bytes() < view_t::expect_size_v) [[unlikely]] {
     throw std::runtime_error("span is not long enough");
   }
   return view_t{span};
