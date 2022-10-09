@@ -6,17 +6,20 @@
 // For the license information refer to version.h.
 
 #include "ht/cli.hpp"
+#include <functional>
 
 #include "catch2/catch_all.hpp"
+#include "ht/core/hash.hpp"
 #include "ht/macro/stealer.h"
 
 using cli_parse_result =
     ht::result<ht::command_line_interpreter::input_command, std::string>;
 using cli_commands_type = std::unordered_map<
-    std::string, std::unique_ptr<ht::command_line_interpreter::command_base>>;
+    std::string, std::unique_ptr<ht::command_line_interpreter::command_base>,
+    ht::string_hash, std::equal_to<void> >;
 
 STEALER(cli_interp_stealer, ht::command_line_interpreter,
-        STEAL_METHOD(cli_parse_result, parse, const std::string &),
+        STEAL_METHOD(cli_parse_result, parse, const std::string&),
         STEAL_FIELD(cli_commands_type, commands_));
 
 TEST_CASE("cli parse, 01", "[cli]") {
