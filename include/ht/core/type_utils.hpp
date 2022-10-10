@@ -7,23 +7,16 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include <cxxabi.h>
-
 #include <memory>
 #include <string>
 #include <tuple>
 #include <utility>
 
-namespace ht {
+#include <ht/core/impl/demangle.hpp>
+#include <ht/core/impl/type_name.hpp>
+#include <ht/core/impl/type_tag.hpp>
 
-template<typename T>
-std::string demangle() {
-  int status;
-  std::unique_ptr<char[], void (*)(void *)> result(
-      abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, &status),
-      std::free);
-  return result ? std::string(result.get()) : "error occurred";
-}
+namespace ht {
 
 template<typename T>
 struct tuple_size_bytes {};
@@ -59,13 +52,6 @@ struct tuple_slice {
   using second = decltype(_detail::new_tuple_from_index(
       std::tuple<Ts...>{},
       index_sequence_plus<I>(std::make_index_sequence<sizeof...(Ts) - I>{})));
-};
-
-// Utility template struct for represent a specify type in parameters for
-// overloading to avoid object overhead
-template<typename T>
-struct type_tag {
-  using type = T;
 };
 
 }  // namespace ht

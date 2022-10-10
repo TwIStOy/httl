@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <unordered_map>
 #include <variant>
@@ -24,14 +25,14 @@
 struct Tmp {
   int x = 10;
 
-  friend auto tag_invoke(ht::tag_t<ht::stringify>, const Tmp &value, uint16_t,
+  friend auto tag_invoke(ht::tag_t<ht::stringify>, const Tmp& value, uint16_t,
                          int16_t) {
     std::ostringstream oss;
     oss << value.x;
     return oss.str();
   }
 
-  friend auto tag_invoke(ht::tag_t<ht::debug_stringify>, const Tmp &value,
+  friend auto tag_invoke(ht::tag_t<ht::debug_stringify>, const Tmp& value,
                          uint16_t, int16_t) {
     std::ostringstream oss;
     oss << value.x;
@@ -98,6 +99,15 @@ TEST_CASE("test stl map", "[stringify][strings]") {
 TEST_CASE("test stl tuple", "[stringify][strings]") {
   std::tuple<InnerReflType, InnerReflType, InnerReflType> value;
   std::cerr << ht::debug_stringify(value, 2) << std::endl;
+}
+
+TEST_CASE("test string_view concat", "[strings][concat]") {
+  using std::operator""sv;
+  static constexpr auto a = "hello"sv;
+  static constexpr auto b = " world"sv;
+  static constexpr auto c = "!"sv;
+
+  constexpr auto sum = ht::concat_sv<a, b, c>::value;
 }
 
 // vim: et sw=2 ts=2
