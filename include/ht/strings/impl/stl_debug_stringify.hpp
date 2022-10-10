@@ -7,30 +7,36 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <ht/core/cpp_feature.h>
+#include <concepts>
 #include <ht/core/algorithm.hpp>
 #include <ht/core/impl/tag_invoke.hpp>
 #include <ht/core/type_utils.hpp>
+#include <ht/meta/meta.hpp>
 #include <ht/strings/impl/stringify.hpp>
 #include <ranges>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
 namespace ht::_tag_impl {
 
-template<typename T>
-  requires std::is_integral_v<T>
-inline auto tag_invoke(ht::tag_t<ht::debug_stringify>, const T& value, uint16_t,
-                       int16_t) {
-  std::ostringstream oss;
-  oss << value;
-  return oss.str();
+inline auto tag_invoke(ht::tag_t<ht::debug_stringify>, auto&& value, uint16_t,
+                       int16_t)
+  requires std::is_integral_v<std::remove_cvref_t<decltype(value)>> ||
+           std::is_floating_point_v<std::remove_cvref_t<decltype(value)>>
+{
+  return std::to_string(HT_FORWARD(value));
 }
 
-inline auto tag_invoke(ht::tag_t<ht::debug_stringify>, const std::string& str,
-                       uint16_t, int16_t) {
+inline auto tag_invoke(ht::tag_t<ht::debug_stringify>, auto&& str, uint16_t,
+                       int16_t)
+  requires std::same_as<std::remove_cvref_t<decltype(str)>, std::string> ||
+           std::same_as<std::remove_cvref_t<decltype(str)>, std::string_view>
+{
   std::ostringstream oss;
   oss << '"' << str << '"';
   return oss.str();
@@ -44,19 +50,19 @@ inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
 
   oss << "(";
   if (indent >= 0) {
-    oss << std::endl;
+    oss << '\n';
   }
   oss << _stringify_impl::__indent{indent, static_cast<uint16_t>(level + 1)}
       << "first: " << demangle<T>() << " = "
       << ht::debug_stringify(value.first, level + 1, indent) << ",";
   if (indent >= 0) {
-    oss << std::endl;
+    oss << '\n';
   }
   oss << _stringify_impl::__indent{indent, static_cast<uint16_t>(level + 1)}
       << "second: " << demangle<U>() << " = "
       << ht::debug_stringify(value.first, level + 1, indent);
   if (indent >= 0) {
-    oss << std::endl;
+    oss << '\n';
   }
 
   oss << _stringify_impl::__indent{indent, level} << ")";
@@ -72,7 +78,7 @@ inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
 
   oss << "(";
   if (indent >= 0) {
-    oss << std::endl;
+    oss << '\n';
   }
   for_<sizeof...(Args)>([&](auto _i) {
     using i = decltype(_i);
@@ -83,7 +89,7 @@ inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
         << ht::debug_stringify(std::get<i::value>(value), level + 1, indent)
         << ",";
     if (indent >= 0) {
-      oss << std::endl;
+      oss << '\n';
     }
   });
   oss << ")";
@@ -91,17 +97,21 @@ inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
   return oss.str();
 }
 
-template<std::ranges::sized_range T>
-inline std::string tag_invoke(ht::tag_t<ht::debug_stringify>, const T& value,
-                              uint16_t level, int16_t indent) {
-  if (std::ranges::size(value) == 0) {
+inline std::string tag_invoke(ht::tag_t<ht::debug_stringify>, auto&& value,
+                              uint16_t level, int16_t indent)
+  requires std::ranges::sized_range<HT_TYPE(value)> &&
+           (!is_map_v<HT_TYPE(value)>) &&
+           (!std::same_as<HT_TYPE(value), std::string>) &&
+           (!std::same_as<HT_TYPE(value), std::string_view>)
+{
+  if (std::ranges::size(value) == 0) [[unlikely]] {
     return "[]";
   } else {
     std::ostringstream oss;
     auto end = std::ranges::end(value);
     oss << "[";
     if (indent >= 0) {
-      oss << std::endl;
+      oss << '\n';
     }
     uint32_t index = 0;
     for (auto it = std::ranges::begin(value); it != end; ++it) {
@@ -109,10 +119,40 @@ inline std::string tag_invoke(ht::tag_t<ht::debug_stringify>, const T& value,
           << "[" << index++
           << "] = " << ht::debug_stringify(*it, level + 1, indent) << ',';
       if (indent >= 0) {
-        oss << std::endl;
+        oss << '\n';
       }
     }
     oss << "]";
+    return oss.str();
+  }
+}
+
+std::string tag_invoke(ht::tag_t<ht::debug_stringify>, auto&& value,
+                       uint16_t level, int16_t indent)
+
+  requires std::ranges::sized_range<HT_TYPE(value)> && is_map_v<HT_TYPE(value)>
+{
+  using key_type    = typename HT_TYPE(value)::key_type;
+  using mapped_type = typename HT_TYPE(value)::mapped_type;
+
+  if (std::ranges::size(value) == 0) [[unlikely]] {
+    return "{}";
+  } else {
+    std::ostringstream oss;
+    auto end = std::ranges::end(value);
+    oss << "{";
+    if (indent >= 0) {
+      oss << '\n';
+    }
+    for (auto it = std::ranges::begin(value); it != end; ++it) {
+      oss << _stringify_impl::__indent{indent, static_cast<uint16_t>(level + 1)}
+          << ht::debug_stringify(it->first, level + 1, indent) << " = "
+          << ht::debug_stringify(it->second, level + 1, indent) << ',';
+      if (indent >= 0) {
+        oss << '\n';
+      }
+    }
+    oss << "}";
     return oss.str();
   }
 }

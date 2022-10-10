@@ -5,6 +5,7 @@
 //
 // For the license information refer to version.h.
 
+#include <type_traits>
 #include <utility>
 
 #if __GNUC__
@@ -14,3 +15,4 @@
 #endif
 
 #define HT_FORWARD(value) std::forward<decltype(value)>(value)
+#define HT_TYPE(value)    std::remove_cvref_t<decltype(value)>
