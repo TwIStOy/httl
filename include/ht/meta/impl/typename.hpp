@@ -22,10 +22,7 @@
 #include <variant>
 #include <vector>
 
-#include <ht/core/impl/demangle.hpp>
-#include <ht/core/impl/type_tag.hpp>
-#include <ht/core/type_utils.hpp>
-#include <ht/strings/string_utility.hpp>
+#include <ht/meta/impl/concat_sv.hpp>
 
 namespace ht {
 
@@ -67,20 +64,6 @@ constexpr auto _strip_template_arguments(std::string_view name) {
   const auto end = name.find('<');
   return name.substr(0, end);
 }
-
-template<typename... Args>
-struct first_type;
-
-template<typename F, typename... Args>
-struct first_type<F, Args...> {
-  using type = F;
-};
-
-template<>
-struct first_type<> {};
-
-template<typename T>
-consteval std::string_view get_readable_typename();
 
 template<typename T>
 struct pretty_typename;
