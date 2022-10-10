@@ -9,15 +9,15 @@
 
 #include <utility>
 
+#include <ht/core/cpp_feature.h>
 #include <ht/core/result.hpp>
 #include <ht/parser_combinator/impl/input_stream.hpp>
 #include <ht/parser_combinator/impl/parser.hpp>
 
 namespace ht::combinators {
 
-template<typename F>
-inline auto make_char_predict_parser(F&& f) {
-  return make_parser([p = std::forward<F>(f)](
+inline auto make_char_predict_parser(auto&& f) {
+  return make_parser([p = HT_FORWARD(f)](
                          const _parser_combinator_impl::input_stream& input)
                          -> parser_result_t<char, std::string> {
     if (input.is_eof()) {

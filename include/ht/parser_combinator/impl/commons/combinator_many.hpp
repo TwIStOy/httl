@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <fmt/format.h>
+#include <ht/core/cpp_feature.h>
 #include <ht/core/algorithm.hpp>
 #include <ht/core/result.hpp>
 #include <ht/core/type_traits.hpp>
@@ -55,10 +56,10 @@ auto combinator_many(P&& p, uint32_t at_least = 0) {
 
 namespace ht::_parser_combinator_impl {
 
-template<typename T>
-  requires is_parser_v<std::decay_t<T>>
-auto operator*(T&& p0, uint32_t at_least) {
-  return combinators::combinator_many(std::forward<T>(p0), at_least);
+auto operator*(auto&& p0, uint32_t at_least)
+  requires is_parser_v<std::remove_cvref_t<decltype(p0)>>
+{
+  return combinators::combinator_many(HT_FORWARD(p0), at_least);
 }
 
 }  // namespace ht::_parser_combinator_impl

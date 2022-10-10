@@ -20,9 +20,9 @@
 #include <utility>
 #include <vector>
 
-#include <ht/core/hash.hpp>
 #include <ht/core/result.hpp>
 #include <ht/core/type_traits.hpp>
+#include <ht/functional/hash.hpp>
 #include <ht/parser_combinator/parser_combinator.hpp>
 #include <ht/strings/stringify.hpp>
 #include "fmt/format.h"
@@ -119,8 +119,8 @@ class command_line_interpreter {
   };
 
  private:
-  std::unordered_map<std::string, std::unique_ptr<command_base>, string_hash,
-                     std::equal_to<void>>
+  std::unordered_map<std::string, std::unique_ptr<command_base>,
+                     Hash<std::string>, std::equal_to<void>>
       commands_;
 
   template<typename To>

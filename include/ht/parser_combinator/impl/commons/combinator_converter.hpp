@@ -26,6 +26,7 @@
 namespace ht::combinators {
 
 template<typename P, typename F>
+  requires std::invocable<F, typename std::remove_cvref_t<P>::value_type>
 auto combinator_converter(P&& p, F&& f) {
   using from_type  = typename std::decay_t<P>::value_type;
   using value_type = std::invoke_result_t<F, from_type>;

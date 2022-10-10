@@ -14,12 +14,14 @@
 #include <unordered_map>
 #include <utility>
 
+#include <ht/functional/hash.hpp>
+
 namespace ht {
 
-template<
-    typename KeyType, typename ValueType, typename Hash = std::hash<KeyType>,
-    typename KeyEqual  = std::equal_to<KeyType>,
-    typename Allocator = std::allocator<std::pair<const KeyType, ValueType>>>
+template<typename KeyType, typename ValueType, typename Hash = Hash<KeyType>,
+         typename KeyEqual = std::equal_to<>,
+         typename Allocator =
+             std::allocator<std::pair<const KeyType, ValueType>>>
 class lru_cache {
  public:
   using key_type        = KeyType;
