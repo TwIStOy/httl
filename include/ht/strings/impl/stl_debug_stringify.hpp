@@ -104,12 +104,17 @@ inline std::string tag_invoke(ht::tag_t<ht::debug_stringify>, auto&& value,
            (!std::same_as<HT_TYPE(value), std::string>) &&
            (!std::same_as<HT_TYPE(value), std::string_view>)
 {
+  std::string_view marker = "[]";
+  if constexpr (requires { typename HT_TYPE(value)::key_type; }) {
+    marker = "{}";
+  }
+
   if (std::ranges::size(value) == 0) [[unlikely]] {
-    return "[]";
+    return marker.data();
   } else {
     std::ostringstream oss;
     auto end = std::ranges::end(value);
-    oss << "[";
+    oss << marker[0];
     if (indent >= 0) {
       oss << '\n';
     }
@@ -122,7 +127,7 @@ inline std::string tag_invoke(ht::tag_t<ht::debug_stringify>, auto&& value,
         oss << '\n';
       }
     }
-    oss << "]";
+    oss << marker[1];
     return oss.str();
   }
 }
