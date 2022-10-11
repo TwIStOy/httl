@@ -78,18 +78,18 @@ TEST_CASE("test type-utils: tuple_slice", "[memory][tuple-slice]") {
   using slice1 = ht::tuple_slice<1, POD_A, POD_B, POD_C>;
   REQUIRE(std::tuple_size_v<slice1::first> == 1);
   REQUIRE(std::tuple_size_v<slice1::second> == 2);
-  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::first>::value == 8);
-  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::second>::value == 36);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice1::first>::value == 8);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice1::second>::value == 36);
   using slice2 = ht::tuple_slice<2, POD_A, POD_B, POD_C>;
   REQUIRE(std::tuple_size_v<slice2::first> == 2);
   REQUIRE(std::tuple_size_v<slice2::second> == 1);
-  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::first>::value == 24);
-  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::second>::value == 20);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice2::first>::value == 24);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice2::second>::value == 20);
   using slice3 = ht::tuple_slice<3, POD_A, POD_B, POD_C>;
   REQUIRE(std::tuple_size_v<slice3::first> == 3);
   REQUIRE(std::tuple_size_v<slice3::second> == 0);
-  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::first>::value == 44);
-  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::second>::value == 0);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice3::first>::value == 44);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice3::second>::value == 0);
 }
 
 TEST_CASE("test layer", "[memory][memory-view]") {
