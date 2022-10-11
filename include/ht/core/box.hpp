@@ -15,7 +15,6 @@
 #include <utility>
 
 #include <ht/core/scope_guard.hpp>
-#include <ht/core/type_utils.hpp>
 
 namespace ht {
 

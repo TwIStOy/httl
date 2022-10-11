@@ -11,9 +11,19 @@
 #include <type_traits>
 #include <utility>
 
-#include <ht/core/type_utils.hpp>
+#include <ht/meta/impl/tuple_slice.hpp>
 
 namespace ht {
+
+namespace _memory_view_impl {
+template<typename T>
+struct _bytes_size {};
+
+template<typename... Args>
+struct _bytes_size<std::tuple<Args...>> {
+  static constexpr auto value = (sizeof(Args) + ... + 0);
+};
+}  // namespace _memory_view_impl
 
 template<typename Ch, std::size_t E, typename... Ts>
   requires((std::is_standard_layout_v<Ts> && std::is_trivial_v<Ts>) && ...)
@@ -45,7 +55,8 @@ struct memory_view {
     auto ptr      = reinterpret_cast<raw_ptr_t>(data_.data());
     using offset  = typename ht::tuple_slice<I, Ts...>::first;
     using layer_t = std::tuple_element_t<I, layers_pack_t>;
-    return reinterpret_cast<layer_t *>(ptr + ht::tuple_size_bytes_v<offset>);
+    return reinterpret_cast<layer_t *>(
+        ptr + _memory_view_impl::_bytes_size<offset>::value);
   }
 
   static auto create_buffer() {

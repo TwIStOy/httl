@@ -7,13 +7,7 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include <ht/core/cpp_feature.h>
 #include <concepts>
-#include <ht/core/algorithm.hpp>
-#include <ht/core/impl/tag_invoke.hpp>
-#include <ht/core/type_utils.hpp>
-#include <ht/meta/meta.hpp>
-#include <ht/strings/impl/stringify.hpp>
 #include <ranges>
 #include <sstream>
 #include <string>
@@ -21,6 +15,12 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+
+#include <ht/core/cpp_feature.h>
+#include <ht/core/algorithm.hpp>
+#include <ht/core/impl/tag_invoke.hpp>
+#include <ht/meta/meta.hpp>
+#include <ht/strings/impl/stringify.hpp>
 
 namespace ht::_tag_impl {
 
@@ -53,13 +53,13 @@ inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
     oss << '\n';
   }
   oss << _stringify_impl::__indent{indent, static_cast<uint16_t>(level + 1)}
-      << "first: " << demangle<T>() << " = "
+      << "first: " << pretty_typename<T>::value << " = "
       << ht::debug_stringify(value.first, level + 1, indent) << ",";
   if (indent >= 0) {
     oss << '\n';
   }
   oss << _stringify_impl::__indent{indent, static_cast<uint16_t>(level + 1)}
-      << "second: " << demangle<U>() << " = "
+      << "second: " << pretty_typename<U>::value << " = "
       << ht::debug_stringify(value.first, level + 1, indent);
   if (indent >= 0) {
     oss << '\n';
@@ -84,7 +84,8 @@ inline auto tag_invoke(ht::tag_t<ht::debug_stringify>,
     using i = decltype(_i);
     oss << _stringify_impl::__indent{indent, static_cast<uint16_t>(level + 1)}
         << "[" << i::value << "]: "
-        << demangle<std::tuple_element_t<i::value, std::tuple<Args...>>>()
+        << pretty_typename<
+               std::tuple_element_t<i::value, std::tuple<Args...>>>::value
         << " = "
         << ht::debug_stringify(std::get<i::value>(value), level + 1, indent)
         << ",";
@@ -134,7 +135,6 @@ inline std::string tag_invoke(ht::tag_t<ht::debug_stringify>, auto&& value,
 
 std::string tag_invoke(ht::tag_t<ht::debug_stringify>, auto&& value,
                        uint16_t level, int16_t indent)
-
   requires std::ranges::sized_range<HT_TYPE(value)> && is_map_v<HT_TYPE(value)>
 {
   using key_type    = typename HT_TYPE(value)::key_type;

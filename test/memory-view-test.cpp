@@ -11,7 +11,6 @@
 #include <utility>
 
 #include "catch2/catch_all.hpp"
-#include "ht/core/type_utils.hpp"
 #include "ht/memory/memory_view.hpp"
 
 struct POD_A {  // 8
@@ -74,23 +73,23 @@ TEST_CASE("test type-utils: tuple_slice", "[memory][tuple-slice]") {
   using slice0 = ht::tuple_slice<0, POD_A, POD_B, POD_C>;
   REQUIRE(std::tuple_size_v<slice0::first> == 0);
   REQUIRE(std::tuple_size_v<slice0::second> == 3);
-  REQUIRE(ht::tuple_size_bytes_v<slice0::first> == 0);
-  REQUIRE(ht::tuple_size_bytes_v<slice0::second> == 44);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::first>::value == 0);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::second>::value == 44);
   using slice1 = ht::tuple_slice<1, POD_A, POD_B, POD_C>;
   REQUIRE(std::tuple_size_v<slice1::first> == 1);
   REQUIRE(std::tuple_size_v<slice1::second> == 2);
-  REQUIRE(ht::tuple_size_bytes_v<slice1::first> == 8);
-  REQUIRE(ht::tuple_size_bytes_v<slice1::second> == 36);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::first>::value == 8);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::second>::value == 36);
   using slice2 = ht::tuple_slice<2, POD_A, POD_B, POD_C>;
   REQUIRE(std::tuple_size_v<slice2::first> == 2);
   REQUIRE(std::tuple_size_v<slice2::second> == 1);
-  REQUIRE(ht::tuple_size_bytes_v<slice2::first> == 24);
-  REQUIRE(ht::tuple_size_bytes_v<slice2::second> == 20);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::first>::value == 24);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::second>::value == 20);
   using slice3 = ht::tuple_slice<3, POD_A, POD_B, POD_C>;
   REQUIRE(std::tuple_size_v<slice3::first> == 3);
   REQUIRE(std::tuple_size_v<slice3::second> == 0);
-  REQUIRE(ht::tuple_size_bytes_v<slice3::first> == 44);
-  REQUIRE(ht::tuple_size_bytes_v<slice3::second> == 0);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::first>::value == 44);
+  REQUIRE(ht::_memory_view_impl::_bytes_size<slice0::second>::value == 0);
 }
 
 TEST_CASE("test layer", "[memory][memory-view]") {

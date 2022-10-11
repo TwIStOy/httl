@@ -7,13 +7,14 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <ostream>
+#include <sstream>
+
 #include <ht/core/algorithm.hpp>
 #include <ht/core/impl/tag_invoke.hpp>
 #include <ht/core/reflect/helpers.hpp>
-#include <ht/core/type_utils.hpp>
+#include <ht/meta/impl/typename.hpp>
 #include <ht/strings/impl/stringify.hpp>
-#include <ostream>
-#include <sstream>
 
 namespace ht::_tag_impl {
 
@@ -67,7 +68,7 @@ auto tag_invoke(ht::tag_t<ht::debug_stringify>, const T& value, uint16_t level,
       oss << _stringify_impl::__indent{indent,
                                        static_cast<uint16_t>(level + 1u)}
           << info_t::property_name().at(i::value) << ": "
-          << demangle<property_type_at<T, i::value>>() << " = ";
+          << pretty_typename<property_type_at<T, i::value>>::value << " = ";
       oss << ht::debug_stringify(refl_ref<i::value>(value), level + 1, indent);
       oss << ',';
       if (indent >= 0) {

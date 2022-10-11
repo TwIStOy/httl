@@ -7,10 +7,11 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include <ht/core/tag_invoke.hpp>
-#include <ht/core/type_utils.hpp>
 #include <sstream>
 #include <type_traits>
+
+#include <ht/core/tag_invoke.hpp>
+#include <ht/meta/impl/typename.hpp>
 
 namespace ht {
 
@@ -72,7 +73,7 @@ struct debug_stringify_fn {
                            debug_stringify_fn, T, uint16_t, int16_t>>
   auto operator()(T&& value, int16_t indent = -1) const noexcept(noexcept_) {
     std::ostringstream oss;
-    oss << "<anoymous>: " << demangle<T>() << " = "
+    oss << "<anoymous>: " << pretty_typename<T>::value << " = "
         << ht::tag_invoke(*this, std::forward<T>(value),
                           static_cast<uint16_t>(0), indent);
     return oss.str();
@@ -84,7 +85,7 @@ struct debug_stringify_fn {
       noexcept(noexcept_) {
     std::ostringstream oss;
     if (level == 0) {
-      oss << "<anoymous>: " << demangle<T>() << " = ";
+      oss << "<anoymous>: " << pretty_typename<T>::value << " = ";
     }
     oss << ht::tag_invoke(*this, std::forward<T>(value), level, indent);
     return oss.str();

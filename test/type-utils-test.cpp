@@ -15,9 +15,8 @@
 
 #include "catch2/catch_all.hpp"
 #include "container_utils.hpp"
-#include "ht/core/impl/type_name.hpp"
-#include "ht/core/type_utils.hpp"
 #include "ht/functional/hash.hpp"
+#include "ht/meta/impl/typename.hpp"
 
 #define __STR_VALUE(...)   __STR_VALUE__(__VA_ARGS__)
 #define __STR_VALUE__(...) #__VA_ARGS__

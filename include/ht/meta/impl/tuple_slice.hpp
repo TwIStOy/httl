@@ -24,7 +24,7 @@ struct tuple_slice {
 
   using second = select_tuple_elemenmts_t<
       std::tuple<Ts...>,
-      index_sequence_plus<I, std::make_index_sequence<sizeof...(Ts) - I>>>;
+      index_sequence_plus_t<I, std::make_index_sequence<sizeof...(Ts) - I>>>;
 };
 
 }  // namespace ht

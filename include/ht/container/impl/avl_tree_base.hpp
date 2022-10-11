@@ -61,15 +61,7 @@ struct __avl_tree_base {
   // node count
   std::size_t __count{0};
 
-  /*
-   * // node offset in user data structure
-   * std::size_t __offset;
-   *
-   * // size of user data structure
-   * std::size_t __size;
-   */
-
-  __avl_tree_node *first_node() const;
+  [[nodiscard]] __avl_tree_node *first_node() const;
 
   __avl_tree_node *last_node();
 

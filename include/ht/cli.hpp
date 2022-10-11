@@ -21,7 +21,6 @@
 #include <vector>
 
 #include <ht/core/result.hpp>
-#include <ht/core/type_traits.hpp>
 #include <ht/functional/hash.hpp>
 #include <ht/parser_combinator/parser_combinator.hpp>
 #include <ht/strings/stringify.hpp>

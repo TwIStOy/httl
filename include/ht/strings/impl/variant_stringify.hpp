@@ -7,10 +7,11 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
-#include <ht/core/type_utils.hpp>
-#include <ht/strings/impl/stringify.hpp>
 #include <sstream>
 #include <variant>
+
+#include <ht/meta/impl/typename.hpp>
+#include <ht/strings/impl/stringify.hpp>
 
 namespace ht::_tag_impl {
 
@@ -27,19 +28,17 @@ auto tag_invoke(stringify_fn, const std::variant<Args...>& value,
       value);
 }
 
-/*
- * template<typename... Args>
- * auto tag_invoke(debug_stringify_fn, const std::variant<Args...> &value) {
- *   return std::visit(
- *       [](const auto &r) {
- *         std::ostringstream oss;
- *         oss << demangle<std::variant<Args...>>();
- *         oss << "{" << stringify(r) << "}";
- *         return oss.str();
- *       },
- *       value);
- * }
- */
+template<typename... Args>
+auto tag_invoke(debug_stringify_fn, const std::variant<Args...>& value) {
+  return std::visit(
+      [](const auto& r) {
+        std::ostringstream oss;
+        oss << pretty_typename<std::variant<Args...>>::value;
+        oss << "{" << stringify(r) << "}";
+        return oss.str();
+      },
+      value);
+}
 
 }  // namespace ht::_tag_impl
 

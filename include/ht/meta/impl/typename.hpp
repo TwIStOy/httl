@@ -244,13 +244,12 @@ consteval std::string_view get_readable_typename() {
     }
   } else if constexpr (std::is_const_v<T>) {
     if constexpr (std::is_pointer_v<T>) {
-      return concat_sv<pretty_typename<std::remove_volatile_t<T>>::value,
-                       _space, _const>::value;
+      return concat_sv<pretty_typename<std::remove_const_t<T>>::value, _space,
+                       _const>::value;
 
     } else {
-      return concat_sv<
-          _const, _space,
-          pretty_typename<std::remove_volatile_t<T>>::value>::value;
+      return concat_sv<_const, _space,
+                       pretty_typename<std::remove_const_t<T>>::value>::value;
     }
   } else if constexpr (std::is_pointer_v<T>) {
     return concat_sv<pretty_typename<std::remove_pointer_t<T>>::value,

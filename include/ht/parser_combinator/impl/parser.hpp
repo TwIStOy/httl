@@ -12,7 +12,7 @@
 #include <utility>
 
 #include <ht/core/result.hpp>
-#include <ht/core/type_traits.hpp>
+#include <ht/meta/impl/is_tuple.hpp>
 #include <ht/parser_combinator/impl/input_stream.hpp>
 
 namespace ht::_parser_combinator_impl {
