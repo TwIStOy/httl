@@ -8,7 +8,6 @@
 #pragma once  // NOLINT(build/header_guard)
 
 #include <ht/meta/impl/concat_sv.hpp>
-#include <ht/meta/impl/function.hh>
 #include <ht/meta/impl/function_signature.hpp>
 #include <ht/meta/impl/has_transparent.hpp>
 #include <ht/meta/impl/index_sequence_plus.hpp>
