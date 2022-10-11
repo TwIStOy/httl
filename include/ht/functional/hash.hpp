@@ -16,6 +16,8 @@
 #include <type_traits>
 #include <utility>
 
+#include <ht/meta/impl/for_.hpp>
+
 namespace ht {
 
 template<typename T>

@@ -13,6 +13,7 @@
 #include <ht/core/algorithm.hpp>
 #include <ht/core/impl/tag_invoke.hpp>
 #include <ht/core/reflect/helpers.hpp>
+#include <ht/meta/impl/for_.hpp>
 #include <ht/meta/impl/typename.hpp>
 #include <ht/strings/impl/stringify.hpp>
 

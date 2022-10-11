@@ -16,6 +16,7 @@
 #include <fmt/format.h>
 #include <ht/core/algorithm.hpp>
 #include <ht/core/result.hpp>
+#include <ht/meta/impl/for_.hpp>
 #include <ht/parser_combinator/impl/input_stream.hpp>
 #include <ht/parser_combinator/impl/parser.hpp>
 
@@ -44,7 +45,7 @@ auto combinator_plus(Ps&&...ps) {
       std::tuple<typename std::decay_t<Ps>::result_as_tuple_t...>;
 
   return make_parser(
-      [ps = std::tuple<Ps...>(std::forward<Ps>(ps)...)](
+      [ps = std::tuple<std::remove_cvref_t<Ps>...>(std::forward<Ps>(ps)...)](
           const _parser_combinator_impl::input_stream& _input) -> result_t {
         _parser_combinator_impl::input_stream input = _input;
 
@@ -87,7 +88,8 @@ auto combinator_plus(Ps&&...ps) {
 namespace ht::_parser_combinator_impl {
 
 template<typename T, typename U>
-  requires is_parser_v<std::decay_t<T>> && is_parser_v<std::decay_t<U>>
+  requires is_parser_v<std::remove_cvref_t<T>> &&
+           is_parser_v<std::remove_cvref_t<U>>
 auto operator+(T&& p0, U&& p1) {
   return combinators::combinator_plus(std::forward<T>(p0), std::forward<U>(p1));
 }
