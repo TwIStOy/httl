@@ -7,6 +7,7 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <compare>
 #include <concepts>
 #include <functional>
 #include <type_traits>
@@ -48,14 +49,14 @@ struct named_wrapper : public Skills<named_wrapper<T, Tag, Skills...>>... {
 
   template<typename _U = T>
     requires std::is_copy_assignable_v<_U>
-  named_wrapper& operator=(const named_wrapper& rhs) {
+  named_wrapper& operator=(const named_wrapper& rhs) & {
     value_ = rhs.value_;
     return *this;
   }
 
   template<typename _U = T>
     requires std::is_move_assignable_v<_U>
-  named_wrapper& operator=(named_wrapper&& rhs) {
+  named_wrapper& operator=(named_wrapper&& rhs) & {
     value_ = std::move(rhs.value_);
     return *this;
   }
@@ -159,6 +160,16 @@ template<typename T>
 struct subtractable : __detail::crtp_helper<T, subtractable> {
   T operator-(T const& rhs) const {
     return T(__HT_VALUE - rhs.value());
+  }
+};
+
+template<typename T>
+struct comparable : __detail::crtp_helper<T, comparable> {
+  auto operator<=>(const T& rhs) const noexcept {
+    return __HT_VALUE <=> rhs.value();
+  }
+  auto operator==(const T& rhs) const noexcept {
+    return __HT_VALUE == rhs.value();
   }
 };
 
