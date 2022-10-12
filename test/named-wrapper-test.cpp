@@ -5,6 +5,7 @@
 //
 // For the license information refer to version.h.
 
+#include <compare>
 #include <functional>
 #include <type_traits>
 
@@ -90,8 +91,8 @@ TEST_CASE("named wrapper, skill nagatable", "[container][named_wrapper]") {
   using named_i32 = ht::named_wrapper<int32_t, struct test_32_tag,
                                       ht::named_wrapper_skills::negatable>;
 
-  named_i32 a(10u);
-  named_i32 b(20u);
+  named_i32 a(10);
+  named_i32 b(20);
 
   auto c = -a;
 
@@ -103,9 +104,18 @@ TEST_CASE("named wrapper, skill hash", "[container][named_wrapper]") {
   using named_i32 = ht::named_wrapper<int32_t, struct test_32_tag,
                                       ht::named_wrapper_skills::hashable>;
 
-  named_i32 a(10u);
+  named_i32 a(10);
 
   std::hash<named_i32>{}(a);
+}
+
+TEST_CASE("named wrapper, skill compare", "[container][named_wrapper]") {
+  using named_i32 = ht::named_wrapper<int32_t, struct test_32_tag,
+                                      ht::named_wrapper_skills::comparable>;
+
+  named_i32 a(10), b(11);
+  a < b;
+  a == b;
 }
 
 // vim: et sw=2 ts=2
