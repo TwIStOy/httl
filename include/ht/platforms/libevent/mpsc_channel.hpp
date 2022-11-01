@@ -9,18 +9,21 @@
 
 #include <event.h>
 
-#include <memory>
+#include <mutex>
 
 namespace ht::platform::libevent {
 
-struct EventDeleter {
-  void operator()(void *p) const noexcept {
-    auto e = reinterpret_cast<struct ::event *>(p);
-    ::event_del(e);
-    ::event_free(e);
-  }
+template<typename E>
+class mpsc_channel {
+ public:
+  explicit mpsc_channel(::event_base *base, int max_size = -1);
+
+  using value_type = E;
+
+ private:
+  ::event_base *base_;
+  int max_size_;
 };
-using EventPtr = std::unique_ptr<::event, EventDeleter>;
 
 }  // namespace ht::platform::libevent
 

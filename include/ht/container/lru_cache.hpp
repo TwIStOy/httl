@@ -21,7 +21,11 @@ namespace ht {
 template<typename KeyType, typename ValueType, typename Hash = Hash<KeyType>,
          typename KeyEqual = std::equal_to<>,
          typename Allocator =
-             std::allocator<std::pair<const KeyType, ValueType>>>
+             std::allocator<std::pair<const KeyType, ValueType>>,
+         typename HashContainer = std::unordered_map<
+             KeyType,
+             typename std::list<std::pair<const KeyType, ValueType>>::iterator,
+             Hash, KeyEqual>>
 class lru_cache {
  public:
   using key_type        = KeyType;
@@ -168,9 +172,7 @@ class lru_cache {
   size_type max_size_;
 
   mutable std::list<value_type> values_;
-  std::unordered_map<key_type, typename std::list<value_type>::iterator, hasher,
-                     key_equal>
-      index_;
+  HashContainer index_;
 };
 
 }  // namespace ht

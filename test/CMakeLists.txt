@@ -21,4 +21,5 @@ add_httl_test(cli-test)
 add_httl_test(memory-view-test)
 add_httl_test(lru-test)
 add_httl_test(type-utils-test)
+add_httl_test(circular-deque-test)
 

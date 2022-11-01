@@ -17,9 +17,12 @@ AlignConsecutiveAssignments: true
 BreakBeforeConceptDeclarations: true
 RequiresClausePosition: OwnLine
 IndentRequiresClause: true
+# RequiresExpressionIndentation: OuterScope
 InsertBraces: true
 ReferenceAlignment: Left
 IncludeBlocks: Preserve
+SeparateDefinitionBlocks: Always
+AlwaysBreakAfterReturnType: None
 ---
 Language: Proto
 AlignConsecutiveAssignments: true
