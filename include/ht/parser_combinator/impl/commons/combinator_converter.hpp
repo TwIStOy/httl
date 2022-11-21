@@ -24,41 +24,39 @@
 
 namespace ht::combinators {
 
-template<typename P, typename F>
-  requires std::invocable<F, typename std::remove_cvref_t<P>::value_type>
-auto combinator_converter(P&& p, F&& f) {
-  using from_type  = typename std::decay_t<P>::value_type;
-  using value_type = std::invoke_result_t<F, from_type>;
-  using error_type = typename std::decay_t<P>::error_type;
+auto combinator_converter(as_parser auto&& p, auto&& f)
+  requires std::invocable<HT_TYPE(f), typename HT_TYPE(p)::value_type>
+{
+  using from_type  = typename HT_TYPE(p)::value_type;
+  using value_type = std::invoke_result_t<HT_TYPE(f), from_type>;
+  using error_type = typename HT_TYPE(p)::error_type;
   using result_t =
       result<std::pair<value_type, _parser_combinator_impl::input_stream>,
              error_type>;
 
-  return make_parser([p = std::forward<P>(p),
-                      f = std::forward<F>(f)](const auto& _input) -> result_t {
-    auto input = _input;
+  return make_parser(
+      [p = HT_FORWARD(p), f = HT_FORWARD(f)](const auto& _input) -> result_t {
+        auto input = _input;
 
-    auto r = p(input);
-    if (r.is_err()) {
-      if constexpr (std::is_same_v<error_type, void>) {
-        return err();
-      } else {
-        return err(std::move(r).unwrap_err());
-      }
-    }
-    return ok(std::make_pair(f(std::move(std::move(r).unwrap().first)),
-                             r.unwrap().second));
-  });
+        auto r = p(input);
+        if (r.is_err()) {
+          if constexpr (std::is_same_v<error_type, void>) {
+            return err();
+          } else {
+            return err(std::move(r).unwrap_err());
+          }
+        }
+        return ok(std::make_pair(f(std::move(std::move(r).unwrap().first)),
+                                 r.unwrap().second));
+      });
 }
 
 }  // namespace ht::combinators
 
 namespace ht::_parser_combinator_impl {
 
-template<typename P, typename F>
-auto operator>>(P&& p, F&& f) {
-  return combinators::combinator_converter(std::forward<P>(p),
-                                           std::forward<F>(f));
+auto operator>>(auto&& p, auto&& f) {
+  return combinators::combinator_converter(HT_FORWARD(p), HT_FORWARD(f));
 }
 
 }  // namespace ht::_parser_combinator_impl

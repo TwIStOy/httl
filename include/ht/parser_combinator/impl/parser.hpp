@@ -66,6 +66,9 @@ template<typename VT, typename ET = void>
 using parser_result_t =
     result<std::pair<VT, _parser_combinator_impl::input_stream>, ET>;
 
+template<typename T>
+concept as_parser = is_parser_v<std::remove_cvref_t<T>>;
+
 }  // namespace ht
 
 // vim: et sw=2 ts=2

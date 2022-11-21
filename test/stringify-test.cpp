@@ -39,6 +39,7 @@ struct Tmp {
     return oss.str();
   }
 };
+
 TEST_CASE("test simple struct", "[stringify][strings]") {
   {
     Tmp tmp;
@@ -48,7 +49,9 @@ TEST_CASE("test simple struct", "[stringify][strings]") {
 
   {
     Tmp tmps[] = {{}, {}, {}};
-    auto res   = ht::str_join(tmps, ", ");
+    auto res = ht::str_join(tmps, ", ", [](std::string *output, const auto& r) {
+      output->append(ht::stringify(r));
+    });
     REQUIRE(res == "10, 10, 10");
   }
 }
@@ -68,6 +71,7 @@ struct InnerReflType {
 
   HT_REFL_INS_DECL(InnerReflType, x, y, z, tmp);
 };
+
 struct ReflType {
   int x         = 10;
   int y         = 20;

@@ -9,7 +9,6 @@
 
 #include <concepts>
 #include <optional>
-#include <ranges>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -24,24 +23,22 @@
 
 namespace ht::combinators {
 
-template<typename P>
-auto combinator_option(P&& p) {
-  using element_type = typename std::decay_t<P>::value_type;
+auto combinator_option(auto&& p) {
+  using element_type = typename HT_TYPE(p)::value_type;
   using value_type   = std::optional<element_type>;
   using result_t =
       result<std::pair<value_type, _parser_combinator_impl::input_stream>,
              std::string>;
 
-  return make_parser([p = std::forward<P>(p)](const auto& _input) -> result_t {
+  return make_parser([p = HT_FORWARD(p)](const auto& _input) -> result_t {
     value_type res;
-    _parser_combinator_impl::input_stream input = _input;
+    auto input = _input;
 
     auto r = p(input);
     if (r.is_err()) {
       return ok(std::make_pair(std::nullopt, _input));
     }
     return ok(r.unwrap());
-    ;
   });
 }
 

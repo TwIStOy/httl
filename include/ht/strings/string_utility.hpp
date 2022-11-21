@@ -12,7 +12,6 @@
 #include <cstring>
 #include <functional>
 #include <iterator>
-#include <ranges>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -20,7 +19,10 @@
 #include <vector>
 
 #include <ht/core/cpp_feature.h>
+#include <ht/strings/impl/str_join_impl.hpp>
 #include <ht/strings/impl/stringify.hpp>
+#include <range/v3/core.hpp>
+#include <range/v3/range/concepts.hpp>
 
 namespace ht {
 
@@ -39,45 +41,6 @@ inline std::string_view remove_leading_spaces(std::string_view str) {
     return str.substr(first_nonwhitespace_index);
   }
   return str;
-}
-
-/**
- * Joins elements of a range with separator into a single string.
- */
-template<std::ranges::sized_range Rng>
-std::string str_join(const Rng& container, std::string_view sep) {
-  auto end = std::ranges::end(container);
-  std::ostringstream oss;
-  bool first = true;
-  for (auto it = std::ranges::begin(container); it != end; ++it) {
-    if (first) {
-      first = false;
-    } else {
-      oss << sep;
-    }
-    oss << stringify(*it);
-  }
-  return oss.str();
-}
-
-/**
- * Joins elements of a range with separator into a single string.
- */
-template<std::ranges::sized_range C, typename F>
-  requires std::invocable<F, std::ranges::range_value_t<C>>
-std::string str_join(const C& container, std::string_view sep, F&& f) {
-  auto end = std::ranges::end(container);
-  std::ostringstream oss;
-  bool first = true;
-  for (auto it = std::ranges::begin(container); it != end; ++it) {
-    if (first) {
-      first = false;
-    } else {
-      oss << sep;
-    }
-    oss << f(*it);
-  }
-  return oss.str();
 }
 
 /**

@@ -11,4 +11,3 @@
 #include <type_traits>
 #include <utility>
 
-#include <ht/core/impl/collect.hpp>
