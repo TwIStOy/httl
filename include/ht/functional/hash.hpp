@@ -48,6 +48,7 @@ template<typename T>
 struct Hash {
   // default implementation, use std::hash
   using hash_t = std::hash<T>;
+
   // NOTE(hawtian): in default mode, no `is_transparent` defined
 
   [[nodiscard]] inline std::size_t operator()(const T& value) const noexcept {

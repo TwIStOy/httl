@@ -16,13 +16,14 @@
 #include <type_traits>
 #include <utility>
 
+#include <ht/core/cpp_feature.h>
+
 namespace ht {
 
 namespace __assert_impl {
 
-[[gnu::cold]] inline auto runtime_assert_failed_cold(auto&& failed_fn)
-    -> auto&& {
-  return std::forward<decltype(failed_fn)>(failed_fn);
+HT_COLD inline auto runtime_assert_failed_cold(auto&& failed_fn) -> auto&& {
+  return HT_FORWARD(failed_fn);
 }
 
 inline void report_error_and_terminate(const char *prefix, const char *msg,
@@ -72,7 +73,7 @@ constexpr auto inline bound = __assert_impl::runtime_assertion(
 
 }  // namespace assertion
 
-[[nodiscard]] decltype(auto) assert_in_bound(
+[[nodiscard]] inline decltype(auto) assert_in_bound(
     auto&& obj, auto&& arg,
     std::source_location where = std::source_location::current())
   requires((std::is_integral_v<std::remove_cvref_t<decltype(arg)>>) &&
@@ -83,10 +84,10 @@ constexpr auto inline bound = __assert_impl::runtime_assertion(
 {
   assertion::bound.expect(arg >= 0 && arg < std::ssize(obj),
                           "out of bounds access detected", where);
-  return std::forward<decltype(obj)>(obj)[std::forward<decltype(arg)>(arg)];
+  return HT_FORWARD(obj)[HT_FORWARD(arg)];
 }
 
-[[nodiscard]] decltype(auto) assert_in_bound(
+[[nodiscard]] inline decltype(auto) assert_in_bound(
     auto&& obj, auto&& arg,
     std::source_location where = std::source_location::current())
   requires((!std::is_integral_v<std::remove_cvref_t<decltype(arg)>>) &&
@@ -95,7 +96,7 @@ constexpr auto inline bound = __assert_impl::runtime_assertion(
              obj[arg];
            })
 {
-  return std::forward<decltype(obj)>(obj)[std::forward<decltype(arg)>(arg)];
+  return HT_FORWARD(obj)[HT_FORWARD(arg)];
 }
 
 }  // namespace ht
