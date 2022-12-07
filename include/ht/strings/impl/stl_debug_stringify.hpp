@@ -17,7 +17,6 @@
 #include <utility>
 
 #include <ht/core/cpp_feature.h>
-#include <ht/core/algorithm.hpp>
 #include <ht/core/impl/tag_invoke.hpp>
 #include <ht/meta/impl/for_.hpp>
 #include <ht/meta/meta.hpp>

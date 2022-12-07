@@ -16,7 +16,6 @@
 #include <vector>
 
 #include <fmt/format.h>
-#include <ht/core/algorithm.hpp>
 #include <ht/core/result.hpp>
 #include <ht/parser_combinator/impl/input_stream.hpp>
 #include <ht/parser_combinator/impl/parser.hpp>

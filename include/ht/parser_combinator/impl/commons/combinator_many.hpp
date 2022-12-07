@@ -18,7 +18,6 @@
 #include <range/v3/core.hpp>
 
 #include <ht/core/cpp_feature.h>
-#include <ht/core/algorithm.hpp>
 #include <ht/core/result.hpp>
 #include <ht/parser_combinator/impl/input_stream.hpp>
 #include <ht/parser_combinator/impl/parser.hpp>

@@ -14,7 +14,6 @@
 #include <utility>
 
 #include <fmt/format.h>
-#include <ht/core/algorithm.hpp>
 #include <ht/core/result.hpp>
 #include <ht/meta/impl/for_.hpp>
 #include <ht/parser_combinator/impl/input_stream.hpp>
