@@ -31,6 +31,7 @@ namespace ht {
 namespace _tag_invoke {
 inline constexpr core::__tag_invoke::_fn tag_invoke{};
 }  // namespace _tag_invoke
+
 using namespace _tag_invoke;  // NOLINT
 
 template<auto& CPO>
