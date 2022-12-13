@@ -14,18 +14,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install gcc11
-      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test && sudo apt install -y gcc-11 g++-11 && sudo ln -s /usr/bin/gcc-11 gcc && sudo ln -s /usr/bin/g++-11 g++ && sudo ln -s /usr/bin/g++-11 c++
+    - name: Install gcc12
+      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test && sudo apt install -y gcc-12 g++-12 && sudo ln -s /usr/bin/gcc-12 gcc && sudo ln -s /usr/bin/g++-12 g++ && sudo ln -s /usr/bin/g++-12 c++
 
     - uses: actions/checkout@v2
       with:
         submodules: true
 
     - name: Configure CMake
-      run: CC=gcc-11 CXX=g++-11 cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: CC=gcc-12 CXX=g++-12 cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      run: CC=gcc-11 CXX=g++-11 cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: CC=gcc-12 CXX=g++-12 cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
