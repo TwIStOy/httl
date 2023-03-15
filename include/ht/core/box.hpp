@@ -18,6 +18,7 @@
 
 namespace ht {
 
+/// A value type that can be used to store a value in union.
 template<typename T>
 class box {
   static_assert(std::is_nothrow_destructible_v<T>);

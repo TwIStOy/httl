@@ -15,6 +15,7 @@
 #include <ht/meta/impl/is_map.hh>
 #include <ht/meta/impl/is_pair.hh>
 #include <ht/meta/impl/is_tuple.hpp>
+#include <ht/meta/impl/is_specialization.hh>
 #include <ht/meta/impl/select_tuple_element.hpp>
 #include <ht/meta/impl/tuple_slice.hpp>
 #include <ht/meta/impl/type_slice.hpp>
