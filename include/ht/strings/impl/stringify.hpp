@@ -9,6 +9,7 @@
 
 #include <sstream>
 #include <type_traits>
+#include <utility>
 
 #include <ht/core/tag_invoke.hpp>
 #include <ht/meta/impl/typename.hpp>
