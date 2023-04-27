@@ -7,6 +7,7 @@
 
 #pragma once  // NOLINT(build/header_guard)
 
+#include <cassert>
 #include <string>
 #include <string_view>
 
@@ -48,6 +49,12 @@ struct FormatterHelper {
   details::DebugStruct debug_struct(std::string_view name);
 
  private:
+  void write_str(std::string_view str);
+
+  friend struct details::DebugStruct;
+  friend struct details::DebugTuple;
+
+ private:
   std::string output_;
 };
 
@@ -58,7 +65,12 @@ DebugStruct::DebugStruct(FormatterHelper *helper) : helper_(helper) {
 
 template<typename T>
 DebugStruct& DebugStruct::field(std::string_view name, const T& value) {
+  assert(helper_ != nullptr);
+
   if (helper_->is_pretty()) {
+    if (has_fields_) {
+      helper_->write_str(" {\n");
+    }
   }
 
   return *this;
