@@ -134,7 +134,7 @@ struct sync_wait_task {
   using promise_type = detail::sync_wait_promise<T>;
   using handle_t     = std::coroutine_handle<promise_type>;
 
-  explicit sync_wait_task(handle_t coro) noexcept : coro_(coro) {
+  sync_wait_task(handle_t coro) noexcept : coro_(coro) {
   }
 
   sync_wait_task(sync_wait_task&& rhs) noexcept

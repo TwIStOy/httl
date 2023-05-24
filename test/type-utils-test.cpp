@@ -18,6 +18,8 @@
 #include "ht/functional/hash.hpp"
 #include "ht/meta/impl/typename.hpp"
 
+#include "sdt/core/trait/impl/container.hh"
+
 #define __STR_VALUE(...)   __STR_VALUE__(__VA_ARGS__)
 #define __STR_VALUE__(...) #__VA_ARGS__
 #define CHECK_TYPE(...) \

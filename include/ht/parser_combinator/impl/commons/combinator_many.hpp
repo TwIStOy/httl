@@ -25,8 +25,8 @@
 
 namespace ht::combinators {
 
-template<template<typename> class S = std::vector>
-auto combinator_many(auto&& p, uint32_t at_least = 0)
+template<template<typename...> class S = std::vector>
+auto combinator_many(auto&& p, uint32_t at_least)
   requires ranges::sized_range<S<typename HT_TYPE(p)::value_type>>
 {
   using element_type = typename HT_TYPE(p)::value_type;
