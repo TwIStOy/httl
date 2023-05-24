@@ -49,4 +49,25 @@ concept LegacyForwardIterator =
       { *it++ } -> std::same_as<std::iter_reference_t<It>>;
     };
 
+template<class I>
+concept LegacyBidirectionalIterator =
+    LegacyForwardIterator<I> && requires(I i) {
+      { --i } -> std::same_as<I&>;
+      { i-- } -> std::convertible_to<const I&>;
+      { *i-- } -> std::same_as<std::iter_reference_t<I>>;
+    };
+
+template<class I>
+concept LegacyRandomAccessIterator =
+    LegacyBidirectionalIterator<I> && std::totally_ordered<I> &&
+    requires(I i, typename std::incrementable_traits<I>::difference_type n) {
+      { i += n } -> std::same_as<I&>;
+      { i -= n } -> std::same_as<I&>;
+      { i + n } -> std::same_as<I>;
+      { n + i } -> std::same_as<I>;
+      { i - n } -> std::same_as<I>;
+      { i - i } -> std::same_as<decltype(n)>;
+      { i[n] } -> std::convertible_to<std::iter_reference_t<I>>;
+    };
+
 }  // namespace sdt::core::trait
