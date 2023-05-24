@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <utility>
 
 #include <sdt/sync/fwd/mutex_fwd.hh>
 #include <sdt/sync/fwd/rwlock_fwd.hh>
@@ -24,8 +25,9 @@ class LockGuard final {
   using reference       = value_type&;
   using const_reference = const value_type&;
   using allocator_type  = std::allocator<value_type>;
-  using pointer         = std::allocator_traits<allocator_type>::pointer;
-  using const_pointer   = std::allocator_traits<allocator_type>::const_pointer;
+  using pointer = typename std::allocator_traits<allocator_type>::pointer;
+  using const_pointer =
+      typename std::allocator_traits<allocator_type>::const_pointer;
 
   using mutex_type = M;
   using lock_type  = L<M>;
@@ -60,7 +62,7 @@ class LockGuard final {
   friend class Mutex<T, M>;
   friend class RWLock<T, M>;
 
-  LockGuard(value_type& value, lock_type lk)
+  LockGuard(value_type& value, lock_type lk)  // NOLINT
       : value_(value), lk_(std::move(lk)) {
   }
 
@@ -68,5 +70,6 @@ class LockGuard final {
   value_type& value_;
   lock_type lk_;
 };
+
 
 }  // namespace sdt::sync::details

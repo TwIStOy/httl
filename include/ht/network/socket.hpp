@@ -11,6 +11,7 @@
 
 #include <ht/core/cpp_feature.h>
 #include <ht/core/reflect/macros.h>
+#include <unistd.h>
 #include <ht/strings/stringify.hpp>
 
 namespace ht {
@@ -33,6 +34,7 @@ struct socket {
   HT_ALWAYS_INLINE friend auto tag_invoke(ht::tag_t<ht::debug_stringify>,
                                           const socket& skt, uint16_t,
                                           uint16_t) {
+    auto test = "abc";
     return fmt::format("Socket{{fd = {}, io_context = {:p}}}", skt.fd_,
                        skt.io_context_);
   }

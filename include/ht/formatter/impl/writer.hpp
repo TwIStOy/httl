@@ -16,8 +16,14 @@
 
 namespace ht::formatter::details {
 
-struct _Writer {
-  void write_str(std::string_view str);
+struct Writer {
+  virtual ~Writer() = default;
+
+  virtual void write_str(std::string_view str) = 0;
+};
+
+struct _Writer : public Writer {
+  void write_str(std::string_view str) final;
 
   [[nodiscard]] std::string copy() const;
 
@@ -25,19 +31,14 @@ struct _Writer {
   std::string output_;
 };
 
-template<typename T>
-concept Writer = requires(T t) {
-  { t.write_str(std::string_view{}) };
-};
-
-struct PadAdapter {
-  explicit PadAdapter(_Writer *writer) : writer_(writer) {
+struct PadAdapter : public Writer {
+  inline explicit PadAdapter(Writer *writer) : writer_(writer) {
   }
 
-  void write_str(std::string_view str);
+  void write_str(std::string_view str) final;
 
  private:
-  _Writer *writer_;
+  Writer *writer_;
   bool on_newline = true;
 };
 
@@ -71,8 +72,5 @@ inline auto PadAdapter::write_str(std::string_view str) -> void {
     str.remove_prefix(pos + 1);
   }
 }
-
-static_assert(Writer<_Writer>);
-static_assert(Writer<PadAdapter>);
 
 }  // namespace ht::formatter::details

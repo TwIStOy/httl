@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <utility>
 
 #include <sdt/sync/fwd/mutex_fwd.hh>
 #include <sdt/sync/impl/lock_guard.hh>
